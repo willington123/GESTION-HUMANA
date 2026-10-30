@@ -1,0 +1,1321 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Comité PeopleFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#081226; --bg2:#0b1833; --panel:#0f1e3c; --panel2:#13264c; --line:#21386a; --line2:#2c4a86;
+  --text:#eef3ff; --muted:#93a6cb; --dim:#64789f;
+  --accent:#2f7bff; --accent2:#45b8ff; --cyan:#3cc0e8; --green:#2fd38f; --amber:#f6a623; --red:#ff5b6e; --violet:#9b7bff;
+  --ease:cubic-bezier(.2,.9,.25,1); --spring:cubic-bezier(.34,1.56,.64,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:100%}
+
+/* ---------- fondo ---------- */
+#bg{position:fixed;inset:0;z-index:0}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.45;z-index:0;pointer-events:none;transition:transform 1.6s var(--ease)}
+.orb.o1{width:52vw;height:52vw;left:-14vw;top:-18vw;background:radial-gradient(circle,#1d5cff 0,transparent 70%)}
+.orb.o2{width:44vw;height:44vw;right:-12vw;bottom:-16vw;background:radial-gradient(circle,#11a6ff 0,transparent 70%);opacity:.32}
+.orb.o3{width:30vw;height:30vw;right:20vw;top:-12vw;background:radial-gradient(circle,#6b4dff 0,transparent 70%);opacity:.22}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- escenas ---------- */
+#deck{position:fixed;inset:0;z-index:2}
+.slide{position:absolute;inset:0;padding:clamp(20px,4.2vw,64px) clamp(16px,5vw,84px) 92px;display:flex;flex-direction:column;justify-content:center;opacity:0;visibility:hidden;pointer-events:none;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.slide::-webkit-scrollbar{display:none}
+.slide.is-active{opacity:1;visibility:visible;pointer-events:auto;animation:slideIn .9s var(--ease) both}
+.slide.dir-back.is-active{animation-name:slideInBack}
+.slide.leaving{visibility:visible;animation:slideOut .6s var(--ease) both}
+.slide.leaving.dir-back{animation-name:slideOutBack}
+@keyframes slideIn{from{opacity:0;transform:translateX(6vw) scale(.96);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes slideInBack{from{opacity:0;transform:translateX(-6vw) scale(.96);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes slideOut{to{opacity:0;transform:translateX(-5vw) scale(1.04);filter:blur(8px)}}
+@keyframes slideOutBack{to{opacity:0;transform:translateX(5vw) scale(1.04);filter:blur(8px)}}
+.wrap{width:100%;max-width:1320px;margin:0 auto}
+
+/* animación de elementos: se dispara al entrar a la escena */
+.a{opacity:0}
+.is-active .a{animation:var(--an,up) .9s var(--ease) both;animation-delay:calc(var(--d,0) * 1ms)}
+.a.pop{--an:pop}.a.left{--an:left}.a.right{--an:right}.a.zoom{--an:zoom}.a.flip{--an:flip}.a.fade{--an:fade}.a.drop{--an:drop}
+@keyframes up{from{opacity:0;transform:translateY(34px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.6)}60%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:none}}
+@keyframes left{from{opacity:0;transform:translateX(-50px)}to{opacity:1;transform:none}}
+@keyframes right{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:none}}
+@keyframes zoom{from{opacity:0;transform:scale(1.25);filter:blur(12px)}to{opacity:1;transform:none;filter:none}}
+@keyframes flip{from{opacity:0;transform:perspective(900px) rotateY(80deg) translateY(30px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes drop{0%{opacity:0;transform:translateY(-40px) scale(.9)}70%{opacity:1;transform:translateY(4px)}100%{opacity:1;transform:none}}
+
+/* palabras que aparecen una a una */
+.split .w{display:inline-block;opacity:0;transform:translateY(.6em) rotate(4deg);filter:blur(6px)}
+.is-active .split .w{animation:word .8s var(--ease) both;animation-delay:calc(var(--d,0) * 1ms + var(--i) * 70ms)}
+@keyframes word{to{opacity:1;transform:none;filter:none}}
+
+/* tipografía */
+.kicker{display:inline-flex;align-items:center;gap:10px;font-size:clamp(12px,1.05vw,15px);font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent2)}
+.kicker::before{content:"";width:28px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+h1,h2{font-weight:800;letter-spacing:-.025em;line-height:1.04}
+h2{font-size:clamp(28px,3.6vw,54px);margin:.35em 0 .3em}
+h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.split .hl{background:none;color:#5fb4ff}
+.lead{color:var(--muted);font-size:clamp(15px,1.3vw,19px);line-height:1.5;max-width:62ch}
+.head{margin-bottom:clamp(16px,2.4vw,32px)}
+.head-row{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+
+.panel{background:linear-gradient(180deg,rgba(19,38,76,.78),rgba(13,27,56,.82));border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 20px 60px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.red{background:rgba(255,91,110,.14);color:#ff7a8a}
+.pill.amber{background:rgba(246,166,35,.15);color:#ffbd4a}
+.pill.green{background:rgba(47,211,143,.14);color:#47e0a0}
+.pill.gray{background:rgba(147,166,203,.14);color:#b6c4e0}
+.pill.gray::before{display:none}
+
+/* botón ver captura */
+.cap-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border:1px solid var(--line2);border-radius:999px;color:#a9c6ff;font-size:13px;font-weight:600;background:rgba(47,123,255,.08);transition:.25s}
+.cap-btn:hover{background:rgba(47,123,255,.2);color:#fff;border-color:var(--accent)}
+.cap-btn svg{width:15px;height:15px}
+
+/* ---------- 1 · portada ---------- */
+.cover{align-items:center;text-align:center}
+.logo-big{display:flex;align-items:center;gap:clamp(12px,1.6vw,22px);justify-content:center}
+.logo-big svg{width:clamp(70px,8vw,120px);height:auto;overflow:visible}
+.logo-word{font-size:clamp(40px,6vw,92px);font-weight:800;letter-spacing:-.04em;line-height:1}
+.logo-word b{color:#3b82ff;font-weight:800}
+.logo-tag{color:var(--muted);font-size:clamp(14px,1.5vw,22px);margin-top:6px;text-align:left}
+.is-active .lp{animation:lp .7s var(--spring) both}
+.lp{transform-box:fill-box;transform-origin:50% 100%;opacity:0}
+@keyframes lp{from{opacity:0;transform:translateY(30px) scale(.3)}to{opacity:1;transform:none}}
+.lw{stroke-dasharray:1;stroke-dashoffset:1}
+.is-active .lw{animation:draw 1.1s var(--ease) both}
+@keyframes draw{to{stroke-dashoffset:0}}
+.cover h1{font-size:clamp(34px,5.4vw,84px);margin-top:clamp(30px,5vh,60px);max-width:16ch;margin-inline:auto}
+.cover .badge{margin-top:28px;display:inline-flex;gap:10px;align-items:center;padding:10px 18px;border-radius:999px;border:1px solid var(--line2);color:var(--muted);font-size:14px}
+.cover .badge kbd{font-family:inherit;font-weight:700;color:#fff;background:var(--panel2);border:1px solid var(--line2);padding:2px 8px;border-radius:6px}
+.ring-deco{position:absolute;left:50%;top:50%;width:min(80vw,900px);aspect-ratio:1;translate:-50% -50%;border-radius:50%;border:1px solid rgba(69,184,255,.12);pointer-events:none}
+.ring-deco.r2{width:min(60vw,640px);border-color:rgba(69,184,255,.18)}
+.is-active .ring-deco{animation:ringPulse 6s ease-in-out infinite}
+.is-active .ring-deco.r2{animation-delay:-3s}
+@keyframes ringPulse{0%,100%{transform:scale(.96);opacity:.6}50%{transform:scale(1.04);opacity:1}}
+
+/* ---------- 2 · organigrama ---------- */
+.org-tools{display:flex;gap:10px;flex-wrap:wrap}
+.btn-o{padding:9px 18px;border-radius:12px;border:1px solid var(--accent);color:#6aa5ff;font-weight:700;font-size:14px;transition:.2s}
+.btn-o:hover{background:rgba(47,123,255,.15);color:#fff}
+.org{position:relative;padding-bottom:10px}
+.org-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.org-lines path{fill:none;stroke:#3a5a98;stroke-width:1.6;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .9s var(--ease)}
+.org-lines path.on{stroke-dashoffset:0}
+.org-lines path.glow{stroke:#4f9bff;stroke-width:2.2;filter:drop-shadow(0 0 6px #2f7bff)}
+.lvl0{display:flex;justify-content:center;margin-bottom:46px}
+.lvl1{display:flex;gap:clamp(12px,1.6vw,26px);align-items:flex-start;justify-content:center}
+.branch{display:flex;flex-direction:column;align-items:center;flex:1 1 0;min-width:0}
+.branch.wide{flex:1.55 1 0}
+.branch.ghost{flex:.55 1 0}
+.node{position:relative;display:flex;gap:11px;align-items:center;width:100%;max-width:250px;padding:12px 14px;border-radius:14px;background:linear-gradient(180deg,#132650,#0f1f42);border:1px solid #243f75;text-align:left;opacity:0;transform:translateY(-24px) scale(.9);transition:opacity .6s var(--ease),transform .7s var(--spring),border-color .25s,box-shadow .25s}
+.node.in{opacity:1;transform:none}
+.node.boss{cursor:pointer}
+.node.boss:hover,.branch.open>.node{border-color:#3d76e6;box-shadow:0 0 0 1px rgba(61,118,230,.4),0 14px 40px -12px rgba(47,123,255,.55)}
+.node .av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:700;font-size:13px;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.06)}
+.node .av img{width:100%;height:100%;object-fit:cover}
+.node .nm{font-weight:700;font-size:14px;line-height:1.22}
+.node .rl{font-size:13px;color:#cdd7ee;margin-top:2px}
+.node .dp{font-size:11.5px;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.node .tx{min-width:0}
+.node .cnt{position:absolute;left:50%;bottom:-12px;translate:-50% 0;min-width:24px;height:24px;padding:0 7px;border-radius:999px;display:grid;place-items:center;font-size:12px;font-weight:700;background:#0c1a36;border:1px solid #3a5a98;color:#d8e3ff}
+.node.boss .cnt{animation:cntPulse 2.2s ease-in-out infinite}
+.branch.open>.node .cnt{background:var(--accent);border-color:var(--accent);color:#fff;animation:none}
+@keyframes cntPulse{0%,100%{box-shadow:0 0 0 0 rgba(47,123,255,.5)}50%{box-shadow:0 0 0 7px rgba(47,123,255,0)}}
+.node .plus{position:absolute;left:50%;bottom:-11px;translate:-50% 0;padding:2px 9px;border-radius:999px;background:var(--accent);font-size:11.5px;font-weight:700}
+.node.ceo{max-width:270px}
+.node.ghostn{justify-content:center;border-style:dashed;background:rgba(15,31,66,.5);color:var(--muted);font-size:13px;font-weight:600;min-height:64px}
+.team{margin-top:28px;width:100%;padding:12px;border:1px dashed #2f4d88;border-radius:16px;background:rgba(18,36,75,.45);display:none;gap:14px 10px}
+.branch.open .team{display:grid}
+.team.cols2{grid-template-columns:1fr 1fr}
+.team .node{max-width:none;transform:translateY(-18px) scale(.92);padding:10px 12px}
+.team .node .av{width:34px;height:34px;font-size:12px}
+.team .node .nm{font-size:13px}.team .node .rl{font-size:12px}
+.branch.open .team .node{animation:cardIn .6s var(--spring) both;animation-delay:calc(var(--i) * 85ms + 120ms)}
+@keyframes cardIn{from{opacity:0;transform:translateY(-18px) scale(.9)}to{opacity:1;transform:none}}
+.org-hint{color:var(--muted);font-size:14px;margin-top:6px}
+
+/* ---------- 3 · personas ---------- */
+.fake-btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+.fb{padding:10px 18px;border-radius:10px;font-weight:700;font-size:14px;background:var(--accent);color:#fff}
+.fb.o{background:transparent;border:1px solid #2e4c88;color:#7fb0ff}
+.fb.l{background:none;padding:10px 4px;color:#4f8dff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.2vw,16px)}
+.stat{padding:clamp(16px,1.8vw,26px);border-radius:16px;position:relative;overflow:hidden}
+.stat .n{font-size:clamp(40px,4.6vw,72px);font-weight:800;color:var(--cyan);letter-spacing:-.03em;line-height:1}
+.stat .l{color:var(--muted);margin-top:8px;font-size:clamp(13px,1.1vw,16px)}
+.stat::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.07) 50%,transparent 70%);transform:translateX(-100%)}
+.is-active .stat::after{animation:shine 1.6s var(--ease) both;animation-delay:calc(var(--d,0) * 1ms + 500ms)}
+@keyframes shine{to{transform:translateX(100%)}}
+.persona-split{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-top:16px}
+.donut-card{display:flex;gap:24px;align-items:center;padding:22px}
+.donut{width:150px;height:150px;flex:none;transform:rotate(-90deg)}
+.donut circle{fill:none;stroke-width:16}
+.donut .seg{stroke-dasharray:0 999;transition:stroke-dasharray 1.4s var(--ease)}
+.legend{display:grid;gap:12px}
+.legend div{display:flex;align-items:center;gap:10px;font-size:15px;color:#cfd9f0}
+.legend i{width:12px;height:12px;border-radius:4px}
+.legend b{font-size:22px;color:#fff;margin-left:auto;padding-left:18px}
+.alert-card{padding:22px;display:flex;flex-direction:column;justify-content:center;gap:10px;border-color:rgba(255,91,110,.35)}
+.alert-card .big{font-size:clamp(40px,4vw,60px);font-weight:800;color:#ff7a8a;line-height:1}
+
+/* ---------- 4 · contratos ---------- */
+.runway{padding:12px 22px 10px;margin-bottom:12px}
+.runway-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin-bottom:10px}
+.track{position:relative;height:66px}
+.track .axis{position:absolute;left:0;right:0;bottom:16px;height:4px;border-radius:4px;background:linear-gradient(90deg,#ff5b6e,#ff8a5b 45%,#f6a623 75%,#ffd36e)}
+.track .axis{transform-origin:left;transform:scaleX(0);transition:transform 1.2s var(--ease)}
+.is-active .track .axis{transform:scaleX(1)}
+.track .tick{position:absolute;bottom:0;font-size:11px;color:var(--dim);translate:-50% 0}
+.dot{position:absolute;width:16px;height:16px;border-radius:50%;translate:-50% 0;border:2px solid #0b1833;opacity:0;transform:translateY(-30px)}
+.is-active .dot{animation:dotDrop .7s var(--spring) both;animation-delay:calc(var(--i) * 90ms + 700ms)}
+@keyframes dotDrop{to{opacity:1;transform:none}}
+.dot.red{background:#ff5b6e;box-shadow:0 0 12px #ff5b6e}.dot.amber{background:#f6a623;box-shadow:0 0 12px #f6a623}
+.dot:hover::after{content:attr(data-t);position:absolute;bottom:22px;left:50%;translate:-50% 0;white-space:nowrap;background:#0b1833;border:1px solid var(--line2);padding:4px 8px;border-radius:8px;font-size:12px}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(12px,.98vw,14.5px)}
+.tbl-wrap{overflow:auto;border-radius:16px}
+.tbl th{text-align:left;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:#8aa0c9;font-weight:700;padding:11px 14px;background:#132650;border-bottom:1px solid var(--line)}
+.tbl td{padding:8px 14px;border-bottom:1px solid rgba(33,56,106,.6);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td.nm{color:#7fb0ff;font-weight:600}
+.tbl tbody tr{opacity:0}
+.is-active .tbl tbody tr{animation:rowIn .6s var(--ease) both;animation-delay:calc(var(--i) * 70ms + var(--base,300) * 1ms)}
+@keyframes rowIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+.tbl tbody tr:hover td{background:rgba(47,123,255,.07)}
+
+/* ---------- pasos (ingresos / retiros) ---------- */
+.flow{position:relative;display:grid;gap:12px}
+.flow::before{content:"";position:absolute;left:23px;top:20px;bottom:20px;width:2px;background:linear-gradient(var(--accent),var(--accent2));transform-origin:top;transform:scaleY(0);transition:transform 1.6s var(--ease) .3s}
+.is-active .flow::before{transform:scaleY(1)}
+.step{position:relative;display:flex;gap:16px;align-items:flex-start;padding:14px 18px 14px 0}
+.step .num{position:relative;z-index:1;flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-weight:800;font-size:18px;background:#0e1c3a;border:1px solid var(--line2);color:#9cc0ff;transition:.4s}
+.is-active .step .num{animation:numOn .5s var(--ease) both;animation-delay:calc(var(--d) * 1ms + 200ms)}
+@keyframes numOn{to{background:linear-gradient(135deg,var(--accent),#1f5be0);color:#fff;border-color:transparent;box-shadow:0 8px 24px -6px rgba(47,123,255,.7)}}
+.step .st{font-size:clamp(14px,1.2vw,17.5px);line-height:1.45;padding-top:11px;color:#dfe7fa}
+.step .st b{color:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,2.6vw,40px);align-items:start}
+.two.r{grid-template-columns:1.15fr 1fr}
+.areas{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+.area{padding:16px;display:flex;gap:12px;align-items:center;font-weight:600;font-size:clamp(13px,1.05vw,15px);line-height:1.35}
+.area .ic{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(47,123,255,.15);color:#7fb0ff}
+.area .ic svg{width:22px;height:22px}
+.sub-h{font-size:clamp(16px,1.4vw,20px);font-weight:700;margin-bottom:12px;color:#fff}
+
+/* inducción */
+.ind{padding:22px}
+.ind h3{font-size:clamp(22px,2.2vw,32px);font-weight:800;letter-spacing:-.02em}
+.ind .meta{color:var(--dim);font-size:13px;margin:6px 0 14px;line-height:1.5}
+.mods{display:grid;gap:8px}
+.mod{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:10px 14px;border-radius:12px;background:rgba(10,22,46,.7);border:1px solid rgba(44,74,134,.5)}
+.mod .mn{font-weight:600;font-size:14px}
+.mod .mt{color:var(--muted);font-size:12px;text-align:right}
+.mod .bar{grid-column:1/-1;height:5px;border-radius:5px;background:rgba(255,255,255,.06);overflow:hidden}
+.mod .bar i{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width 1s var(--ease)}
+.is-active .mod .bar i{width:100%;transition-delay:calc(var(--i) * 350ms + 700ms)}
+.approved{display:flex;gap:10px;align-items:center;margin-top:14px;font-weight:700;flex-wrap:wrap}
+.approved .muted{color:var(--muted);font-weight:500}
+
+/* checklist tareas jefe */
+.tasks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.task{padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
+.task .ck{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid #34548f;display:grid;place-items:center;margin-top:2px}
+.task .ck svg{width:18px;height:18px;stroke:#fff;stroke-width:3;fill:none;stroke-dasharray:30;stroke-dashoffset:30}
+.is-active .task .ck.ok{animation:ckBg .4s ease both;animation-delay:calc(var(--d) * 1ms + 450ms)}
+.is-active .task .ck.ok svg{animation:ckDraw .45s ease both;animation-delay:calc(var(--d) * 1ms + 650ms)}
+@keyframes ckBg{to{background:var(--green);border-color:var(--green);box-shadow:0 0 18px rgba(47,211,143,.55)}}
+@keyframes ckDraw{to{stroke-dashoffset:0}}
+.task .ck.na{border-style:dashed;color:var(--muted);font-size:16px;font-weight:700}
+.task h4{font-size:15.5px;margin-bottom:4px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.task p{font-size:14px;color:#dbe4f7;line-height:1.4}
+.task small{display:block;font-size:12px;color:var(--dim);margin-top:5px;line-height:1.4}
+
+/* ---------- QR escena ---------- */
+.qr-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);gap:clamp(18px,2.4vw,36px);align-items:center}
+.qsteps{display:grid;gap:10px;margin-top:18px}
+.qs{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;border:1px solid transparent;color:var(--muted);transition:.45s var(--ease);font-size:clamp(13px,1.05vw,15.5px);line-height:1.35}
+.qs .n{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px;border:1px solid var(--line2);transition:.45s}
+.qs.on{color:#fff;background:rgba(47,123,255,.12);border-color:rgba(47,123,255,.4);transform:translateX(6px)}
+.qs.on .n{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 18px rgba(47,123,255,.6)}
+.qs.done .n{background:var(--green);border-color:var(--green);color:#06291a}
+.stage{position:relative;display:grid;grid-template-columns:1.55fr 1fr;align-items:center;gap:10px;padding:16px;border-radius:24px;min-height:min(62vh,520px)}
+.scene{width:100%;height:auto;overflow:visible}
+#person{transition:transform 2.1s cubic-bezier(.45,.05,.3,1)}
+.stage.s1 #person{transform:translateX(300px)}
+.leg{transform-box:fill-box;transform-origin:50% 0}
+.stage.walk .leg.l1{animation:legA .5s ease-in-out infinite alternate}
+.stage.walk .leg.l2{animation:legA .5s ease-in-out infinite alternate-reverse}
+.stage.walk #body{animation:bob .25s ease-in-out infinite alternate}
+@keyframes legA{from{transform:rotate(22deg)}to{transform:rotate(-22deg)}}
+@keyframes bob{to{transform:translateY(-3px)}}
+#arm{transform-box:view-box;transform-origin:8px -158px;transition:transform .7s var(--spring)}
+.stage.s2 #arm{transform:rotate(-82deg)}
+#beam{opacity:0;transition:opacity .4s}
+.stage.s3 #beam{opacity:1;animation:beamP .5s ease-in-out infinite alternate}
+@keyframes beamP{from{opacity:.55}to{opacity:1}}
+#scanline{opacity:0}
+.stage.s3 #scanline{opacity:1;animation:scanY 1.1s ease-in-out infinite alternate}
+@keyframes scanY{from{transform:translateY(0)}to{transform:translateY(88px)}}
+#qrok{opacity:0;transform-box:fill-box;transform-origin:center}
+.stage.s4 #qrok{animation:okPop .7s var(--spring) both}
+@keyframes okPop{0%{opacity:0;transform:scale(.4)}100%{opacity:1;transform:none}}
+#ripple{opacity:0;transform-box:fill-box;transform-origin:center}
+.stage.s4 #ripple{animation:rip 1s ease-out both}
+@keyframes rip{0%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(1.8)}}
+#phoneGlow{opacity:.35;transition:.3s}
+.stage.s3 #phoneGlow{opacity:1}
+/* teléfono grande */
+.phone{justify-self:center;width:min(100%,215px);aspect-ratio:9/18.5;margin-top:34px;border-radius:38px;padding:10px;background:linear-gradient(160deg,#2a3550,#0b1222);box-shadow:0 30px 70px -20px rgba(0,0,0,.9),0 0 0 2px #3a4870 inset;position:relative;opacity:0;transform:translateY(60px) rotate(8deg) scale(.9);transition:.9s var(--spring)}
+.stage.s4 .phone{opacity:1;transform:none}
+.phone .scr{position:relative;height:100%;border-radius:30px;overflow:hidden;background:#0d1b38}
+.phone .notch{position:absolute;top:8px;left:50%;translate:-50% 0;width:70px;height:18px;border-radius:12px;background:#05090f;z-index:3}
+.menu{position:absolute;inset:0;padding:42px 14px 14px;display:flex;flex-direction:column;gap:9px;transition:.5s var(--ease)}
+.menu .hr{color:var(--muted);font-size:11px;text-align:center}
+.menu .q{font-weight:800;font-size:15px;text-align:center;margin:4px 0 6px}
+.menu .op{padding:13px 8px;border-radius:12px;border:1px solid #2c4170;text-align:center;font-weight:600;font-size:13px;background:#0f2044;transition:.3s}
+.menu .op.sug{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.menu .op.sug small{display:block;margin:5px auto 0;width:max-content;font-size:10px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.22)}
+.menu .tm{margin-top:auto;text-align:right;font-size:11px;color:#c9d5ef}
+.stage.s5 .menu .op.sug{transform:scale(.95);box-shadow:0 0 0 4px rgba(47,123,255,.35)}
+.tap{position:absolute;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.85);left:62%;top:120%;opacity:0;z-index:4;box-shadow:0 0 0 0 rgba(255,255,255,.6);transition:top .7s var(--ease),left .7s var(--ease),opacity .3s}
+.stage.s4b .tap{opacity:.9;top:76%;left:58%}
+.stage.s5 .tap{animation:tapR .5s ease-out both;top:76%;left:58%;opacity:.9}
+@keyframes tapR{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7);transform:scale(.8)}100%{box-shadow:0 0 0 22px rgba(255,255,255,0);transform:scale(1)}}
+.stage.s6 .tap{opacity:0}
+.confirm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(circle at 50% 40%,#123d33,#0d1b38 70%);opacity:0;transform:scale(1.1);transition:.5s var(--ease);text-align:center;padding:20px}
+.stage.s6 .confirm{opacity:1;transform:none}
+.stage.s6 .menu{opacity:0;transform:scale(.92)}
+.confirm .cc{width:84px;height:84px;border-radius:50%;background:var(--green);display:grid;place-items:center;box-shadow:0 0 40px rgba(47,211,143,.6);transform:scale(0);transition:.6s var(--spring) .15s}
+.stage.s6 .confirm .cc{transform:none}
+.confirm .cc svg{width:44px;height:44px;stroke:#06291a;stroke-width:4;fill:none;stroke-dasharray:40;stroke-dashoffset:40;transition:stroke-dashoffset .5s ease .55s}
+.stage.s6 .confirm .cc svg{stroke-dashoffset:0}
+.confirm b{font-size:18px}.confirm span{font-size:12px;color:#bfe9d6;line-height:1.4}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:40%;left:50%;width:7px;height:11px;border-radius:2px;opacity:0}
+.stage.s6 .confetti i{animation:conf 1.4s ease-out both;animation-delay:calc(var(--k) * 25ms + 300ms)}
+@keyframes conf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r))}}
+.replay{position:absolute;right:16px;top:14px;z-index:5;display:inline-flex;gap:8px;align-items:center;padding:8px 14px;border-radius:999px;border:1px solid var(--line2);font-size:13px;font-weight:600;color:#a9c6ff;background:rgba(8,18,38,.7)}
+.replay:hover{border-color:var(--accent);color:#fff}
+
+/* QR códigos */
+.qrs{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,4vw,70px);max-width:900px;margin:0 auto}
+.qrc{padding:clamp(16px,2vw,26px);text-align:center}
+.qrbox{position:relative;border-radius:18px;overflow:hidden;margin:0 auto;max-width:340px}
+.qrbox img{width:100%}
+.qrbox::after{content:"";position:absolute;left:0;right:0;height:4px;top:0;background:linear-gradient(90deg,transparent,#45d0ff,transparent);box-shadow:0 0 22px 6px rgba(69,208,255,.6);opacity:0}
+.is-active .qrbox::after{animation:qrScan 2.4s ease-in-out infinite;animation-delay:calc(var(--d) * 1ms + 600ms)}
+@keyframes qrScan{0%{top:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
+.corner{position:absolute;width:34px;height:34px;border:4px solid var(--accent2);z-index:2}
+.corner.tl{left:-6px;top:-6px;border-right:0;border-bottom:0;border-radius:12px 0 0 0}
+.corner.tr{right:-6px;top:-6px;border-left:0;border-bottom:0;border-radius:0 12px 0 0}
+.corner.bl{left:-6px;bottom:-6px;border-right:0;border-top:0;border-radius:0 0 0 12px}
+.corner.br{right:-6px;bottom:-6px;border-left:0;border-top:0;border-radius:0 0 12px 0}
+.qrframe{position:relative;max-width:340px;margin:0 auto}
+.qrc h3{margin-top:18px;font-size:clamp(18px,1.7vw,24px);font-weight:800}
+
+/* marcaciones */
+.marks{display:grid;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(150px,1.1fr) 3fr minmax(140px,.9fr);gap:16px;align-items:center;padding:13px 18px}
+.mrow .who b{display:block;font-size:15px}
+.mrow .who span{font-size:12.5px;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;position:relative}
+.chips .pill{opacity:0;transform:scale(.6)}
+.is-active .chips .pill{animation:pop .5s var(--spring) both;animation-delay:calc(var(--r) * 160ms + var(--i) * 220ms + 500ms)}
+.shift{padding:9px 12px;border-radius:10px;border:1px solid #2c4a86;background:#0c1a38;font-size:13.5px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.shift::after{content:"";width:7px;height:7px;border-right:2px solid #8ea3c8;border-bottom:2px solid #8ea3c8;transform:rotate(45deg) translateY(-2px)}
+
+/* activos */
+.stats5{display:grid;grid-template-columns:repeat(3,1fr) 1.3fr 1.3fr;gap:14px}
+.as{padding:22px;border-radius:16px;position:relative;overflow:hidden}
+.as .l{color:var(--muted);font-size:14px}
+.as .n{font-size:clamp(30px,3.2vw,50px);font-weight:800;letter-spacing:-.03em;margin-top:6px;line-height:1}
+.as.money .n{font-size:clamp(22px,2vw,32px)}
+.as .note{margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(47,123,255,.1);font-size:12.5px;color:#c4d3f2;line-height:1.4}
+.as .edge{position:absolute;left:0;top:14%;bottom:14%;width:3px;border-radius:3px}
+.as-big{display:grid;place-items:center;margin-top:20px;padding:26px}
+.gauge{width:100%;max-width:760px}
+.gauge .bar{height:18px;border-radius:12px;background:rgba(255,255,255,.06);overflow:hidden;display:flex}
+.gauge .bar i{height:100%;width:0;transition:width 1.6s var(--ease) .6s}
+.gauge .lbl{display:flex;justify-content:space-between;margin-top:10px;color:var(--muted);font-size:14px}
+
+.company{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(16px,3vw,50px);align-items:center}
+.co{padding:clamp(22px,3vw,44px);text-align:center;border-radius:24px}
+.co .nm{font-size:clamp(16px,1.5vw,22px);font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.co .n{font-size:clamp(70px,9vw,150px);font-weight:800;letter-spacing:-.05em;line-height:1;margin:10px 0}
+.co .t{color:var(--muted)}
+.co.e .n{background:linear-gradient(180deg,#7fd6ff,#2aa3e6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.co.l .n{background:linear-gradient(180deg,#ffb36b,#ff5b4a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.vs{font-weight:800;font-size:22px;color:var(--dim)}
+.sumbar{margin-top:30px}
+.sumbar .bar{height:22px;border-radius:14px;overflow:hidden;display:flex;background:rgba(255,255,255,.05)}
+.sumbar .bar i{width:0;transition:width 1.5s var(--ease) .9s}
+.sumbar .lbl{text-align:center;color:var(--muted);margin-top:12px;font-size:15px}
+.sumbar .lbl b{color:#fff;font-size:20px}
+
+/* sistema de gestión */
+.rings{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,70px);max-width:1000px;margin:0 auto}
+.ringc{padding:clamp(20px,3vw,40px);text-align:center;border-radius:28px}
+.ringw{position:relative;width:min(100%,300px);margin:0 auto;aspect-ratio:1}
+.ringw svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ringw circle{fill:none;stroke-width:14;stroke-linecap:round}
+.ringw .bgc{stroke:rgba(255,255,255,.06)}
+.ringw .fg{stroke-dasharray:0 1000;transition:stroke-dasharray 2s var(--ease) .5s}
+.ringw .val{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(48px,6vw,86px);font-weight:800;letter-spacing:-.04em}
+.ringw .val small{font-size:.45em;color:var(--muted);margin-left:2px}
+.ringc h3{font-size:clamp(18px,1.8vw,26px);margin-top:16px;font-weight:800}
+.ringc p{color:var(--muted);margin-top:4px}
+
+.done-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;align-items:start}
+.folder{padding:22px}
+.folder-h{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.folder-h .ic{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#f6a623,#ff7a3d);display:grid;place-items:center}
+.folder-h .ic svg{width:24px;height:24px}
+.folder-h b{font-size:19px}
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.doc{display:flex;gap:9px;align-items:center;padding:9px 12px;border-radius:10px;background:rgba(10,22,46,.7);border:1px solid rgba(44,74,134,.5);font-size:13.5px;font-weight:500}
+.doc svg{flex:none;width:16px;height:16px;stroke:var(--green);stroke-width:3;fill:none}
+.acts{display:grid;gap:10px}
+.act{display:flex;gap:12px;align-items:center;padding:14px 16px;font-weight:600;font-size:clamp(13.5px,1.1vw,16px)}
+.act .ck2{flex:none;width:30px;height:30px;border-radius:50%;background:var(--green);display:grid;place-items:center;box-shadow:0 0 14px rgba(47,211,143,.45)}
+.act .ck2 svg{width:16px;height:16px;stroke:#06291a;stroke-width:3.4;fill:none}
+
+/* brigada */
+.cards{display:flex;gap:clamp(10px,1.6vw,24px);justify-content:center;flex-wrap:wrap;perspective:1200px}
+.carnet{width:clamp(150px,15vw,220px);border-radius:16px;overflow:hidden;box-shadow:0 25px 60px -20px rgba(0,0,0,.85);transition:transform .4s var(--ease)}
+.carnet img{width:100%;margin:-2px 0}
+.carnet:hover{transform:translateY(-10px) rotate(-1.5deg) scale(1.03)}
+.is-active .carnet.a{animation-duration:1.1s}
+
+/* pendientes */
+.todo{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.td{padding:18px;display:flex;flex-direction:column;gap:12px;min-height:118px;position:relative;overflow:hidden}
+.td .top{display:flex;justify-content:space-between;align-items:center}
+.td .circ{width:26px;height:26px;border-radius:50%;border:2px dashed #f6a623;animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.td .idx{font-size:12px;font-weight:800;color:var(--dim);letter-spacing:.1em}
+.td b{font-size:clamp(14px,1.15vw,16.5px);line-height:1.35}
+.td .when{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#ffc35c;background:rgba(246,166,35,.12);padding:4px 10px;border-radius:999px;align-self:flex-start}
+.td::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(120deg,transparent 40%,rgba(246,166,35,.08),transparent 60%);transform:translateX(-100%)}
+.is-active .td::before{animation:shine 2.2s ease both;animation-delay:calc(var(--d) * 1ms + 400ms)}
+
+/* cierre */
+.end{align-items:center;text-align:center}
+.end h1{font-size:clamp(60px,10vw,160px);letter-spacing:-.05em}
+
+/* ---------- HUD ---------- */
+.progress{position:fixed;top:0;left:0;height:3px;z-index:20;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 0 12px var(--accent);transition:width .7s var(--ease)}
+.hud{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:14px clamp(14px,3vw,34px) max(14px,env(safe-area-inset-bottom));pointer-events:none}
+.hud>*{pointer-events:auto}
+.brand-s{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;opacity:.85}
+.brand-s svg{width:30px}
+.brand-s b{color:#3b82ff}
+.ctrl{display:flex;align-items:center;gap:6px;padding:6px;border-radius:999px;background:rgba(8,18,38,.72);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.ctrl button{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#c6d4f2;transition:.2s}
+.ctrl button:hover{background:rgba(47,123,255,.2);color:#fff}
+.ctrl svg{width:18px;height:18px;stroke:currentColor;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ctrl .cnt{min-width:58px;text-align:center;font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.dots{position:fixed;right:clamp(10px,1.4vw,22px);top:50%;translate:0 -50%;z-index:20;display:grid;gap:7px}
+.dots button{width:8px;height:8px;border-radius:50%;background:#2a3f6e;transition:.3s}
+.dots button.on{background:var(--accent2);height:22px;border-radius:6px;box-shadow:0 0 10px var(--accent)}
+.dots button:hover{background:#6c8fd0}
+
+/* índice */
+.overlay{position:fixed;inset:0;z-index:40;background:rgba(5,11,25,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:none;padding:clamp(20px,5vw,70px);overflow:auto}
+.overlay.show{display:block;animation:fade .3s both}
+.overlay h3{font-size:22px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.idx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.idx-grid button{text-align:left;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--panel);transition:.2s;display:grid;gap:6px}
+.idx-grid button:hover,.idx-grid button.on{border-color:var(--accent);background:var(--panel2)}
+.idx-grid span{font-size:12px;color:var(--accent2);font-weight:800}
+.idx-grid b{font-size:15px}
+.x{width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;font-size:22px}
+.lightbox{display:none;place-items:center}
+.lightbox.show{display:grid}
+.lightbox img{max-width:min(1200px,94vw);max-height:80vh;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.7);background:#fff}
+.lightbox .cap{color:var(--muted);margin-top:14px;text-align:center;font-size:14px}
+.help{position:fixed;left:50%;bottom:76px;translate:-50% 0;z-index:21;padding:10px 16px;border-radius:12px;background:rgba(8,18,38,.85);border:1px solid var(--line2);font-size:13px;color:var(--muted);transition:opacity .6s;white-space:nowrap}
+.help.hide{opacity:0;pointer-events:none}
+.help kbd{font-family:inherit;font-weight:700;color:#fff;background:var(--panel2);border:1px solid var(--line2);padding:1px 6px;border-radius:5px}
+
+/* ---------- móvil ---------- */
+@media (max-width:900px){
+  .slide{justify-content:flex-start;padding-top:28px;padding-bottom:110px}
+  .stats{grid-template-columns:1fr 1fr}
+  .persona-split,.two,.two.r,.done-grid,.qr-layout{grid-template-columns:1fr}
+  .stats5{grid-template-columns:1fr 1fr}.stats5 .money{grid-column:span 2}
+  .lvl1{flex-direction:column;align-items:stretch;gap:22px}
+  .branch,.branch.wide,.branch.ghost{flex:none;align-items:stretch}
+  .node{max-width:none}
+  .lvl0{margin-bottom:26px}
+  .org-lines{display:none}
+  .team.cols2{grid-template-columns:1fr}
+  .tasks,.areas,.docs{grid-template-columns:1fr}
+  .todo{grid-template-columns:1fr 1fr}
+  .stage{grid-template-columns:1.25fr 1fr;min-height:0;padding:44px 8px 10px;gap:4px}
+  .phone{width:100%;max-width:150px;border-radius:24px;padding:6px;margin-top:0}
+  .phone .scr{border-radius:19px}.phone .notch{width:40px;height:10px;top:5px}
+  .menu{padding:22px 7px 8px;gap:5px}.menu .hr{font-size:8px}.menu .q{font-size:10px;margin:0 0 2px}
+  .menu .op{padding:6px 4px;font-size:9px;border-radius:7px}.menu .op.sug small{font-size:7px;margin-top:2px}.menu .tm{font-size:8px}
+  .tap{width:20px;height:20px}
+  .confirm .cc{width:48px;height:48px}.confirm .cc svg{width:26px;height:26px}.confirm b{font-size:13px}.confirm span{font-size:9.5px}
+  .replay{top:8px;right:8px;padding:6px 11px;font-size:12px}
+  .qsteps{gap:4px;margin-top:10px}.qs{padding:7px 10px;font-size:13px}.qs .n{width:24px;height:24px;font-size:11px}.qs.on{transform:none}
+  .mrow{grid-template-columns:1fr;gap:10px}
+  .company{grid-template-columns:1fr}.vs{text-align:center}
+  .rings,.qrs{grid-template-columns:1fr}
+  .dots{display:none}
+  .brand-s span{display:none}
+  .help{display:none}
+  .tbl{min-width:820px}
+}
+@media (max-width:520px){
+  .todo,.stats5{grid-template-columns:1fr}.stats5 .money{grid-column:auto}
+  .donut-card{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div class="grain"></div>
+<div class="progress" id="progress"></div>
+
+<!-- logo reutilizable -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="lgA" x1="0" x2="1"><stop offset="0" stop-color="#2f7bff"/><stop offset="1" stop-color="#45c8ff"/></linearGradient>
+    <symbol id="pfLogo" viewBox="0 0 64 40">
+      <circle cx="14" cy="13" r="4.2" fill="#2f7bff"/><circle cx="27" cy="9" r="4.6" fill="#3b8dff"/><circle cx="41" cy="5.5" r="5" fill="#45b8ff"/>
+      <path d="M4 34c6-3 8-11 12-15 2 6-2 12-6 16" fill="#2f7bff"/>
+      <path d="M14 34c7-4 9-13 14-18 2 7-2 14-7 18" fill="#3b8dff"/>
+      <path d="M24 34c8-5 11-15 18-21 2 8-2 16-8 21" fill="#45b8ff"/>
+      <path d="M2 36c14 4 34-2 60-20" stroke="url(#lgA)" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main id="deck">
+
+<!-- 1 PORTADA -->
+<section class="slide cover" data-title="Portada">
+  <div class="ring-deco"></div><div class="ring-deco r2"></div>
+  <div class="wrap">
+    <div class="logo-big">
+      <svg viewBox="0 0 64 40" aria-label="PeopleFlow">
+        <circle class="lp" style="animation-delay:.1s" cx="14" cy="13" r="4.2" fill="#2f7bff"/>
+        <circle class="lp" style="animation-delay:.22s" cx="27" cy="9" r="4.6" fill="#3b8dff"/>
+        <circle class="lp" style="animation-delay:.34s" cx="41" cy="5.5" r="5" fill="#45b8ff"/>
+        <path class="lp" style="animation-delay:.2s" d="M4 34c6-3 8-11 12-15 2 6-2 12-6 16" fill="#2f7bff"/>
+        <path class="lp" style="animation-delay:.32s" d="M14 34c7-4 9-13 14-18 2 7-2 14-7 18" fill="#3b8dff"/>
+        <path class="lp" style="animation-delay:.44s" d="M24 34c8-5 11-15 18-21 2 8-2 16-8 21" fill="#45b8ff"/>
+        <path class="lw" pathLength="1" style="animation-delay:.6s" d="M2 36c14 4 34-2 60-20" stroke="url(#lgA)" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="logo-word a right" style="--d:350">People<b>Flow</b></div>
+        <div class="logo-tag a fade" style="--d:900">Todo tu equipo. Un solo lugar.</div>
+      </div>
+    </div>
+    <h1 class="split" style="--d:1100">Comité <span class="hl">Administrativo</span> y de <span class="hl">Gestión Humana</span></h1>
+    <div class="badge a" style="--d:2200">Pulsa <kbd>→</kbd> o haz clic para avanzar · <kbd>F</kbd> pantalla completa · <kbd>G</kbd> índice</div>
+  </div>
+</section>
+
+<!-- 2 ORGANIGRAMA -->
+<section class="slide" data-title="Organigrama" id="s-org">
+  <div class="wrap">
+    <div class="head head-row">
+      <div>
+        <div class="kicker a">Estructura</div>
+        <h2 class="split" style="--d:100">Organigrama <span class="hl">PeopleFlow</span></h2>
+        <p class="lead a" style="--d:400">Quiero mostrarles el organigrama que construye la plataforma de PeopleFlow.</p>
+        <p class="org-hint a" style="--d:600">Pulsa una caja con número para abrir o cerrar su equipo. El número es la gente a cargo directo.</p>
+      </div>
+      <div class="org-tools a" style="--d:700">
+        <button class="btn-o" id="openAll">Abrir todo</button>
+        <button class="btn-o" id="closeAll">Cerrar todo</button>
+        <button class="cap-btn" data-cap="assets/cap-organigrama.jpg" data-capt="Captura original: Estructura en PeopleFlow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
+      </div>
+    </div>
+    <div class="org" id="org"><svg class="org-lines" id="orgLines"></svg></div>
+  </div>
+</section>
+
+<!-- 3 PLATAFORMA / PERSONAS -->
+<section class="slide" data-title="Plataforma: Personas">
+  <div class="wrap">
+    <div class="head head-row">
+      <div>
+        <div class="kicker a">Plataforma de PeopleFlow</div>
+        <h2 class="split" style="--d:100"><span class="hl">Personas</span></h2>
+        <p class="lead a" style="--d:300">La hoja de vida de los colaboradores de las razones sociales.</p>
+      </div>
+      <button class="cap-btn a" style="--d:500" data-cap="assets/cap-personas.png" data-capt="Captura original: Personas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
+    </div>
+    <div class="fake-btns">
+      <span class="fb a pop" style="--d:400">Nueva persona</span>
+      <span class="fb a pop" style="--d:480">Cargar o actualizar desde el maestro de Excel</span>
+      <span class="fb o a pop" style="--d:560">Actualizar fechas de ingreso</span>
+      <span class="fb l a pop" style="--d:640">Razones sociales: membrete y firma de los certificados</span>
+    </div>
+    <div class="stats">
+      <div class="stat panel a" style="--d:600"><div class="n" data-count="43">0</div><div class="l">Activos</div></div>
+      <div class="stat panel a" style="--d:720"><div class="n" data-count="14">0</div><div class="l">EHUK</div></div>
+      <div class="stat panel a" style="--d:840"><div class="n" data-count="29">0</div><div class="l">LOGIGHO SAS</div></div>
+      <div class="stat panel a" style="--d:960"><div class="n" data-count="14">0</div><div class="l">Contratos vencen en 45 días</div></div>
+    </div>
+    <div class="persona-split">
+      <div class="panel donut-card a" style="--d:1100">
+        <svg class="donut" viewBox="0 0 160 160" id="donut">
+          <circle cx="80" cy="80" r="60" stroke="rgba(255,255,255,.06)"/>
+          <circle class="seg" cx="80" cy="80" r="60" stroke="#3cc0e8" data-frac="0.3256" data-off="0"/>
+          <circle class="seg" cx="80" cy="80" r="60" stroke="#2f7bff" data-frac="0.6744" data-off="0.3256"/>
+        </svg>
+        <div class="legend">
+          <div style="color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:700">43 activos por razón social</div>
+          <div><i style="background:#3cc0e8"></i>EHUK<b>14</b></div>
+          <div><i style="background:#2f7bff"></i>LOGIGHO SAS<b>29</b></div>
+        </div>
+      </div>
+      <div class="panel alert-card a" style="--d:1250">
+        <div class="big" data-count="14">0</div>
+        <div style="font-weight:700;font-size:18px">contratos vencen en 45 días</div>
+        <div style="color:var(--muted);font-size:14px">Los vemos en detalle en la siguiente escena →</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 CONTRATOS -->
+<section class="slide" data-title="Contratos por vencer">
+  <div class="wrap">
+    <div class="head head-row">
+      <div>
+        <div class="kicker a">Contratos</div>
+        <h2 class="split" style="--d:100;margin-bottom:0">Contratos próximos <span class="hl">para vencer</span></h2>
+      </div>
+      <button class="cap-btn a" style="--d:400" data-cap="assets/cap-contratos.png" data-capt="Captura original: Contratos próximos para vencer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
+    </div>
+    <div class="panel runway a" style="--d:300">
+      <div class="runway-top"><span>Días que faltan para el vencimiento</span><span><span class="pill red">menos de 30 días</span> <span class="pill amber">30 días o más</span></span></div>
+      <div class="track" id="track"><div class="axis"></div></div>
+    </div>
+    <div class="panel tbl-wrap a" style="--d:500">
+      <table class="tbl" id="tblContratos">
+        <thead><tr><th>Nombre</th><th>Cargo</th><th>Jefe inmediato</th><th>Vence</th><th>Faltan</th><th>Carta de preaviso</th><th>Prórroga</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 5 INGRESOS -->
+<section class="slide" data-title="Ingresos">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker a">Personal activo y retirado</div>
+      <h2 class="split" style="--d:100"><span class="hl">Ingresos</span></h2>
+    </div>
+    <div class="two">
+      <div>
+        <div class="areas">
+          <div class="panel area a left" style="--d:300"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-7v16L3 13z"/><path d="M7 13v5a2 2 0 004 0v-4"/></svg></span>Ingreso para el área de marketing (Logigho)</div>
+          <div class="panel area a left" style="--d:420"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></span>Ingreso para el área comercial (asesora)</div>
+          <div class="panel area a left" style="--d:540"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg></span>Ingreso para el área de desarrollo</div>
+          <div class="panel area a left" style="--d:660"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="6" width="14" height="10" rx="1"/><path d="M15 9h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg></span>Ingreso para la transportadora</div>
+        </div>
+        <div class="panel a" style="--d:800;padding:20px;display:flex;gap:16px;align-items:center">
+          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#45b8ff" stroke-width="1.6"><path d="M12 3l9 4-9 4-9-4z"/><path d="M6 9v5c0 2 3 4 6 4s6-2 6-4V9"/><path d="M21 7v6"/></svg>
+          <div><b style="font-size:18px">Al final: la inducción</b><div style="color:var(--muted);font-size:14px;margin-top:4px">Se hace dentro de la plataforma. La vemos en la siguiente escena.</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="sub-h a" style="--d:300">¿Cómo es el proceso cuando una persona nueva ingresa?</div>
+        <div class="flow">
+          <div class="step a right" style="--d:500"><span class="num">1</span><div class="st">Entrevista con el <b>jefe inmediato</b>.</div></div>
+          <div class="step a right" style="--d:750"><span class="num">2</span><div class="st"><b>Exámenes médicos</b>.</div></div>
+          <div class="step a right" style="--d:1000"><span class="num">3</span><div class="st"><b>Gestión humana</b> envía al correo de la persona un mensaje de contratación y qué documentos se necesitan para la contratación.</div></div>
+          <div class="step a right" style="--d:1250"><span class="num">4</span><div class="st">Cuando ingresa, la persona va directamente con gestión humana para hacer el <b>ingreso a la plataforma PeopleFlow</b> y la <b>entrega de los activos</b>.</div></div>
+          <div class="step a right" style="--d:1500"><span class="num">5</span><div class="st">Luego la persona tiene que hacer la <b>inducción</b> que se encuentra en la plataforma.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 INDUCCIÓN -->
+<section class="slide" data-title="Inducción">
+  <div class="wrap">
+    <div class="head head-row">
+      <div>
+        <div class="kicker a">Ingresos</div>
+        <h2 class="split" style="--d:100"><span class="hl">Inducción</span> en la plataforma</h2>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" class="a" data-d="400">
+        <button class="cap-btn" data-cap="assets/cap-induccion.png" data-capt="Captura original: Inducción de Deicy Tatiana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Captura 1</button>
+        <button class="cap-btn" data-cap="assets/cap-inducciones.png" data-capt="Captura original: listado de inducciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Captura 2</button>
+      </div>
+    </div>
+    <div class="two r">
+      <div class="panel ind a left" style="--d:300">
+        <h3>Inducción de Deicy Tatiana</h3>
+        <div style="color:var(--muted);margin-top:2px">Marketing</div>
+        <div style="font-weight:800;margin-top:16px;font-size:16px">Ingreso · asignada 19/10/2026 09:34 a. m.</div>
+        <div class="meta">Plazo 24/10/2026 · contenido Versión 1 · 29/09/2026 · constancia firmada 19/10/2026 10:23 a. m.</div>
+        <div class="mods">
+          <div class="mod" style="--i:0"><span class="mn">Bienvenida a LOGÍGHO</span><span class="mt">19/10/2026 10:11 a. m. → 10:13 a. m.</span><span class="bar"><i></i></span></div>
+          <div class="mod" style="--i:1"><span class="mn">Reglamento y día a día</span><span class="mt">19/10/2026 10:13 a. m. → 10:15 a. m.</span><span class="bar"><i></i></span></div>
+          <div class="mod" style="--i:2"><span class="mn">Seguridad y salud en el trabajo</span><span class="mt">19/10/2026 10:15 a. m. → 10:18 a. m.</span><span class="bar"><i></i></span></div>
+          <div class="mod" style="--i:3"><span class="mn">Convivencia y prevención del acoso</span><span class="mt">19/10/2026 10:18 a. m. → 10:20 a. m.</span><span class="bar"><i></i></span></div>
+        </div>
+        <div class="approved a pop" style="--d:2300">Intento 1 · 100% <span class="pill green">Aprobado</span> <span class="muted">· 19/10/2026 10:22 a. m.</span></div>
+      </div>
+      <div class="panel tbl-wrap a right" style="--d:500">
+        <table class="tbl" style="min-width:0">
+          <thead><tr><th>Persona</th><th>Ingreso</th><th>Completado</th></tr></thead>
+          <tbody style="--base:900">
+            <tr style="--i:0"><td>YULIAN ANDRES TREJOS ZAPATA</td><td>29/10/2026</td><td>29/10/2026</td></tr>
+            <tr style="--i:1"><td>CARLOS FELIPE ALVAREZ MAZABEL</td><td>28/09/2026</td><td>29/10/2026</td></tr>
+            <tr style="--i:2"><td>Deicy Tatiana</td><td>19/10/2026</td><td>19/10/2026</td></tr>
+            <tr style="--i:3"><td>MARIA JOSE LORA MARIN</td><td>05/10/2026</td><td>09/10/2026</td></tr>
+            <tr style="--i:4"><td>YADILTON BRANET TORRES BEDOYA</td><td>28/09/2026</td><td>06/10/2026</td></tr>
+          </tbody>
+        </table>
+        <div style="padding:12px 14px;color:var(--dim);font-size:13px;border-top:1px solid var(--line)">Mostrando 5 de 5 registros</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 RETIROS -->
+<section class="slide" data-title="Retiros">
+  <div class="wrap">
+    <div class="head head-row">
+      <div>
+        <div class="kicker a">Personal activo y retirado</div>
+        <h2 class="split" style="--d:100"><span class="hl">Retiros</span></h2>
+      </div>
+      <button class="cap-btn a" style="--d:400" data-cap="assets/cap-retiro.png" data-capt="Captura original: retiro en el área de calidad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
+    </div>
+    <div class="two">
+      <div>
+        <div class="sub-h a" style="--d:250">Retiro en el área de calidad</div>
+        <div class="panel tbl-wrap a left" style="--d:350">
+          <table class="tbl" style="min-width:0">
+            <thead><tr><th>Persona</th><th>Último día</th><th>Motivo</th></tr></thead>
+            <tbody style="--base:700"><tr style="--i:0"><td style="font-weight:600">Edison Ferley Eusse Eusse</td><td>28/10/2026</td><td>Terminación del contrato (vencimiento del plazo u obra)</td></tr></tbody>
+          </table>
+          <div style="padding:12px 14px;color:var(--dim);font-size:13px;border-top:1px solid var(--line)">Mostrando 1 de 1 registro</div>
+        </div>
+      </div>
+      <div>
+        <div class="sub-h a" style="--d:300">¿Cómo es el proceso cuando una persona se retira?</div>
+        <div style="color:var(--accent2);font-weight:700;font-size:14px;margin:-4px 0 6px" class="a" data-d="400">Si es por terminación de contrato:</div>
+        <div class="flow">
+          <div class="step a right" style="--d:500"><span class="num">1</span><div class="st">Se envía la <b>carta</b> informándole que se termina su contrato (<b>un mes antes</b> de la fecha).</div></div>
+          <div class="step a right" style="--d:750"><span class="num">2</span><div class="st">Gestión humana procede a <b>desactivar la cuenta en PeopleFlow</b> y hacer la <b>devolución de los activos</b>.</div></div>
+          <div class="step a right" style="--d:1000"><span class="num">3</span><div class="st">El área de <b>contabilidad</b> le envía al correo de la persona la liquidación y la carta para hacer los exámenes médicos de retiro (tiene <b>3 días</b> para hacerlos).</div></div>
+          <div class="step a right" style="--d:1250"><span class="num">4</span><div class="st">Cuando se firma la liquidación se procede al <b>pago</b>.</div></div>
+          <div class="step a right" style="--d:1500"><span class="num">5</span><div class="st">Luego el <b>jefe inmediato</b> debe llenar unos datos de la persona que se retiró.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 TAREAS JEFE -->
+<section class="slide" data-title="Tareas del jefe inmediato">
+  <div class="wrap">
+    <div class="head head-row">
+      <div>
+        <div class="kicker a">Retiros</div>
+        <h2 class="split" style="--d:100">Tareas del <span class="hl">jefe inmediato</span></h2>
+      </div>
+      <button class="cap-btn a" style="--d:400" data-cap="assets/cap-tareas-retiro.png" data-capt="Captura original: tareas del retiro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
+    </div>
+    <div class="tasks">
+      <div class="panel task a" style="--d:300"><span class="ck ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><div><h4>Devolver los activos a cargo <span class="pill green">Lista</span></h4><p>No tiene activos a cargo.</p><small>Se marca sola cuando se registra la devolución del último activo (cada una sale con su acta).</small></div></div>
+      <div class="panel task a" style="--d:450"><span class="ck na">—</span><div><h4>Devolver la dotación y el EPP que aplique <span class="pill gray">No aplica</span></h4><p>No recibió dotación ni EPP en PeopleFlow.</p><small>Lo que se gasta con el uso (botas, guantes) puede no devolverse: márcalo «No aplica».</small></div></div>
+      <div class="panel task a" style="--d:600"><span class="ck ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><div><h4>Examen médico de retiro <span class="pill green">Lista</span></h4><p>No lo tomó · lo marcó Juan Jose Grillo el 15/10/2026 · No lo tomo, decision propia</p><small>Se ordena al retiro; la persona tiene 5 días hábiles para presentarse. Se marca solo al registrarlo en SST › Exámenes.</small></div></div>
+      <div class="panel task a" style="--d:750"><span class="ck ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><div><h4>Asignar otro jefe a su gente <span class="pill green">Lista</span></h4><p>Nadie le reporta.</p><small>Se marca sola cuando ya nadie le reporta. Se cambia en «Editar datos» de cada persona.</small></div></div>
+      <div class="panel task a" style="--d:900"><span class="ck ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><div><h4>Paz y salvo firmado por el jefe <span class="pill green">Lista</span></h4><p>Lo firmó Juan Jose Grillo Martinez el 15/10/2026 07:46 a. m.</p><small>El jefe inmediato lo firma en «Mis documentos» con el código que le llega al correo.</small></div></div>
+      <div class="panel task a" style="--d:1050"><span class="ck ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><div><h4>Retirarla y desactivar su cuenta <span class="pill green">Lista</span></h4><p>Hecho el 28/10/2026 12:04 a. m.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 QR ANIMACIÓN -->
+<section class="slide" data-title="Marcación con QR" id="s-qr">
+  <div class="wrap">
+    <div class="qr-layout">
+      <div>
+        <div class="kicker a">Marcación con QR</div>
+        <h2 class="split" style="--d:100">El tiempo en <span class="hl">la plataforma</span></h2>
+        <p class="lead a" style="--d:350">La persona ingresa a Logi o a la bodega, y ahí hay un portátil en la entrada con un QR.</p>
+        <div class="qsteps">
+          <div class="qs a" style="--d:500" data-st="1"><span class="n">1</span>Llega a la entrada</div>
+          <div class="qs a" style="--d:600" data-st="2"><span class="n">2</span>Escanea el QR del portátil con su celular</div>
+          <div class="qs a" style="--d:700" data-st="3"><span class="n">3</span>Le aparece: entrada a turno, inicio de almuerzo, salida de almuerzo y fin de turno</div>
+          <div class="qs a" style="--d:800" data-st="4"><span class="n">4</span>Elige y queda marcado en la plataforma</div>
+        </div>
+      </div>
+      <div class="stage panel a zoom" style="--d:200" id="stage">
+        <button class="replay" id="replay"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8"/><path d="M3 3v5h5"/></svg>Repetir</button>
+        <svg class="scene" viewBox="20 80 720 390" aria-label="Una persona escanea el QR con su celular">
+          <defs>
+            <linearGradient id="beamG" x1="0" x2="1"><stop offset="0" stop-color="#45d0ff" stop-opacity=".9"/><stop offset="1" stop-color="#45d0ff" stop-opacity=".08"/></linearGradient>
+            <radialGradient id="floorG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#2f7bff" stop-opacity=".35"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/></radialGradient>
+            <clipPath id="qrClip"><rect x="538" y="206" width="104" height="104" rx="6"/></clipPath>
+          </defs>
+          <!-- piso y puerta -->
+          <ellipse cx="420" cy="446" rx="360" ry="26" fill="url(#floorG)"/>
+          <line x1="20" y1="444" x2="740" y2="444" stroke="#2a4478" stroke-width="2"/>
+          <rect x="40" y="120" width="120" height="324" rx="6" fill="#0d1d3d" stroke="#2a4478" stroke-width="2"/>
+          <rect x="54" y="134" width="92" height="140" rx="4" fill="#12284f"/>
+          <circle cx="138" cy="300" r="5" fill="#45b8ff"/>
+          <text x="100" y="108" fill="#5f7bb0" font-size="15" font-weight="700" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif">ENTRADA</text>
+          <!-- mesa y portátil -->
+          <rect x="470" y="340" width="250" height="12" rx="4" fill="#24406f"/>
+          <rect x="490" y="352" width="10" height="92" fill="#1b3359"/><rect x="690" y="352" width="10" height="92" fill="#1b3359"/>
+          <rect x="515" y="186" width="150" height="142" rx="10" fill="#0a1630" stroke="#3a5a98" stroke-width="3"/>
+          <path d="M500 340 L680 340 L668 328 L512 328 Z" fill="#3a5a98"/>
+          <rect x="532" y="200" width="116" height="116" rx="8" fill="#fff"/>
+          <image href="assets/qr-oficina.png" x="534" y="202" width="112" height="112" preserveAspectRatio="xMidYMid slice" clip-path="url(#qrClip)"/>
+          <g clip-path="url(#qrClip)"><rect id="scanline" x="532" y="208" width="116" height="4" fill="#45d0ff" style="filter:drop-shadow(0 0 6px #45d0ff)"/></g>
+          <rect id="ripple" x="532" y="200" width="116" height="116" rx="10" fill="none" stroke="#2fd38f" stroke-width="4"/>
+          <g id="qrok"><rect x="532" y="200" width="116" height="116" rx="8" fill="rgba(6,41,26,.82)"/><circle cx="590" cy="258" r="30" fill="#2fd38f"/><path d="M576 258l10 10 18-20" stroke="#06291a" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <!-- haz de escaneo -->
+          <polygon id="beam" points="416,276 532,204 532,312" fill="url(#beamG)"/>
+          <!-- persona -->
+          <g id="person">
+            <g transform="translate(40 444)">
+              <g id="body">
+                <g class="leg l1"><rect x="-14" y="-92" width="17" height="92" rx="8" fill="#1a2b52"/><ellipse cx="-2" cy="-2" rx="14" ry="6" fill="#0a1226"/></g>
+                <g class="leg l2"><rect x="-2" y="-92" width="17" height="92" rx="8" fill="#22376a"/><ellipse cx="10" cy="-2" rx="14" ry="6" fill="#0a1226"/></g>
+                <rect x="-6" y="-160" width="14" height="66" rx="7" fill="#1f5be0"/>
+                <rect x="-28" y="-176" width="56" height="92" rx="22" fill="#2f7bff"/>
+                <rect x="-28" y="-104" width="56" height="16" rx="6" fill="#1a2b52"/>
+                <path d="M-6 -176 l8 14 l8 -14" fill="#fff" opacity=".9"/>
+                <rect x="-6" y="-190" width="14" height="16" rx="5" fill="#e9b38e"/>
+                <circle cx="2" cy="-208" r="24" fill="#f1c09b"/>
+                <path d="M-22 -210 q2 -26 26 -24 q22 2 20 18 q-8 -10 -22 -8 q-8 2 -10 16 z" fill="#1d1a26"/>
+                <circle cx="15" cy="-210" r="2.6" fill="#1d1a26"/>
+                <path d="M14 -198 q5 3 9 0" stroke="#a5634a" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <g id="arm">
+                  <rect x="0" y="-164" width="15" height="74" rx="7.5" fill="#2468f0"/>
+                  <circle cx="7.5" cy="-90" r="7.5" fill="#f1c09b"/>
+                  <rect x="-6" y="-92" width="28" height="9" rx="3" fill="#0b1222" stroke="#5a7cc0" stroke-width="1.4"/>
+                  <rect id="phoneGlow" x="-4" y="-84" width="24" height="4" rx="2" fill="#45d0ff"/>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+        <div class="phone" id="phone">
+          <div class="scr">
+            <div class="notch"></div>
+            <div class="menu">
+              <div class="hr">08:00 a 16:00.</div>
+              <div class="q">¿Qué vas a marcar?</div>
+              <div class="op">Entrada a turno</div>
+              <div class="op">Inicio de almuerzo</div>
+              <div class="op">Fin de almuerzo</div>
+              <div class="op sug">Fin de turno<small>Sugerido</small></div>
+              <div class="tm">3:41 p. m. ✓✓</div>
+            </div>
+            <div class="confirm">
+              <div class="cc"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <b>Fin de turno</b>
+              <span>Marcación registrada<br>3:41 p. m.</span>
+              <div class="confetti" id="confetti"></div>
+            </div>
+            <div class="tap"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;text-align:right" class="a" data-d="900"><button class="cap-btn" data-cap="assets/cap-menu-marcar.png" data-capt="Captura original: menú ¿Qué vas a marcar?"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura del menú</button></div>
+  </div>
+</section>
+
+<!-- 10 QR CÓDIGOS -->
+<section class="slide" data-title="QR de cada sede">
+  <div class="wrap">
+    <div class="head" style="text-align:center">
+      <div class="kicker a">Marcación con QR</div>
+      <h2 class="split" style="--d:100">Los <span class="hl">QR</span> de cada sede</h2>
+    </div>
+    <div class="qrs">
+      <div class="panel qrc a flip" style="--d:300"><div class="qrframe"><span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span><div class="qrbox" style="--d:300"><img src="assets/qr-bodega.png" alt="QR Bodega Medellín"></div></div><h3>QR Bodega Medellín</h3></div>
+      <div class="panel qrc a flip" style="--d:550"><div class="qrframe"><span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span><div class="qrbox" style="--d:900"><img src="assets/qr-oficina.png" alt="QR Oficina Medellín"></div></div><h3>QR Oficina Medellín</h3></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 MARCACIONES -->
+<section class="slide" data-title="Así aparece la marcación">
+  <div class="wrap">
+    <div class="head head-row">
+      <div>
+        <div class="kicker a">Marcación con QR</div>
+        <h2 class="split" style="--d:100">Así aparece la <span class="hl">marcación</span></h2>
+        <p class="lead a" style="--d:300">Así aparece la marcación de las personas que ingresan con el QR.</p>
+      </div>
+      <button class="cap-btn a" style="--d:400" data-cap="assets/cap-marcaciones.png" data-capt="Captura original: marcaciones"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
+    </div>
+    <div class="marks" id="marks"></div>
+  </div>
+</section>
+
+<!-- 12 ACTIVOS -->
+<section class="slide" data-title="Activos de la empresa">
+  <div class="wrap">
+    <div class="head head-row">
+      <div>
+        <div class="kicker a">Activos de la empresa</div>
+        <h2 class="split" style="--d:100"><span class="hl">Activos</span></h2>
+        <p class="lead a" style="--d:300">Equipos y muebles de la empresa, con quién los tiene y su historia.</p>
+      </div>
+      <button class="cap-btn a" style="--d:400" data-cap="assets/cap-activos.png" data-capt="Captura original: Activos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
+    </div>
+    <div class="stats5">
+      <div class="panel as a" style="--d:400"><div class="l">Activos</div><div class="n" data-count="115">0</div></div>
+      <div class="panel as a" style="--d:520"><span class="edge" style="background:#f6a623"></span><div class="l">Entregados</div><div class="n" data-count="114">0</div></div>
+      <div class="panel as a" style="--d:640"><span class="edge" style="background:#ff5bb0"></span><div class="l">Disponibles</div><div class="n" data-count="1">0</div></div>
+      <div class="panel as money a" style="--d:760"><span class="edge" style="background:#9b7bff"></span><div class="l">Valor del inventario</div><div class="n" data-count="96047710" data-prefix="$">$0</div><div class="note">Valor de compra, sin depreciación.</div></div>
+      <div class="panel as money a" style="--d:880"><div class="l">Valor con depreciación</div><div class="n" data-count="94880056" data-prefix="$">$0</div><div class="note">Depreciación del 10% anual: $1.167.654 acumulados.</div></div>
+    </div>
+    <div class="panel as-big a" style="--d:1000">
+      <div class="gauge">
+        <div style="font-weight:700;margin-bottom:12px">De 115 activos, 114 están entregados</div>
+        <div class="bar"><i style="background:linear-gradient(90deg,#f6a623,#ffcf5c)" data-w="99.13"></i><i style="background:#ff5bb0" data-w="0.87"></i></div>
+        <div class="lbl"><span>Entregados · 114</span><span>Disponibles · 1</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 ACTIVOS POR EMPRESA -->
+<section class="slide" data-title="Activos por empresa">
+  <div class="wrap">
+    <div class="head" style="text-align:center">
+      <div class="kicker a">Activos de la empresa</div>
+      <h2 class="split" style="--d:100">Activos por <span class="hl">empresa</span></h2>
+    </div>
+    <div class="company">
+      <div class="panel co e a left" style="--d:300"><div class="nm">ACTIVOS DE EHUK</div><div class="n" data-count="43">0</div><div class="t">total</div></div>
+      <div class="vs a pop" style="--d:600">+</div>
+      <div class="panel co l a right" style="--d:450"><div class="nm">ACTIVOS DE LOGIGHO</div><div class="n" data-count="72">0</div><div class="t">total</div></div>
+    </div>
+    <div class="sumbar a" style="--d:800">
+      <div class="bar"><i style="background:linear-gradient(90deg,#2aa3e6,#7fd6ff)" data-w="37.39"></i><i style="background:linear-gradient(90deg,#ff5b4a,#ffb36b)" data-w="62.61"></i></div>
+      <div class="lbl">Entre las dos: <b data-count="115">0</b> activos</div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 SISTEMA DE GESTIÓN -->
+<section class="slide" data-title="Sistema de gestión">
+  <div class="wrap">
+    <div class="head" style="text-align:center">
+      <div class="kicker a">% avance y pendientes</div>
+      <h2 class="split" style="--d:100">Implementación <span class="hl">sistema de gestión</span></h2>
+    </div>
+    <div class="rings">
+      <div class="panel ringc a pop" style="--d:300">
+        <div class="ringw"><svg viewBox="0 0 220 220"><defs><linearGradient id="rg1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2f7bff"/><stop offset="1" stop-color="#45d0ff"/></linearGradient></defs><circle class="bgc" cx="110" cy="110" r="94"/><circle class="fg" cx="110" cy="110" r="94" stroke="url(#rg1)" data-pct="63"/></svg><div class="val"><span><span data-count="63">0</span><small>%</small></span></div></div>
+        <h3>Sistema de gestión – 2026</h3><p>% de avance</p>
+      </div>
+      <div class="panel ringc a pop" style="--d:500">
+        <div class="ringw"><svg viewBox="0 0 220 220"><defs><linearGradient id="rg2" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2fd38f"/><stop offset="1" stop-color="#b6f36a"/></linearGradient></defs><circle class="bgc" cx="110" cy="110" r="94"/><circle class="fg" cx="110" cy="110" r="94" stroke="url(#rg2)" data-pct="80"/></svg><div class="val"><span><span data-count="80">0</span><small>%</small></span></div></div>
+        <h3>Capacitaciones – 2026</h3><p>% de cumplimiento</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 ACCIONES EJECUTADAS -->
+<section class="slide" data-title="Acciones ejecutadas">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker a">Sistema de gestión</div>
+      <h2 class="split" style="--d:100">Acciones <span class="hl">ejecutadas</span></h2>
+    </div>
+    <div class="done-grid">
+      <div class="panel folder a left" style="--d:300">
+        <div class="folder-h"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></span><b>Carpeta legal</b></div>
+        <div class="docs" id="docs"></div>
+      </div>
+      <div class="acts">
+        <div class="panel act a right" style="--d:900"><span class="ck2"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span>Actas de cada mes de los comités</div>
+        <div class="panel act a right" style="--d:1050"><span class="ck2"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span>Se diseñaron los carnés para la brigada de emergencia</div>
+        <div class="panel act a right" style="--d:1200"><span class="ck2"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span>Digitalización de toda la información</div>
+        <div class="panel act a right" style="--d:1350"><span class="ck2"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span>Exámenes médicos periódicos</div>
+        <div class="panel act a right" style="--d:1500"><span class="ck2"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span>Las cartas para los exámenes médicos de retiro</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 BRIGADA -->
+<section class="slide" data-title="Brigada de emergencia">
+  <div class="wrap">
+    <div class="head" style="text-align:center">
+      <div class="kicker a">Sistema de gestión</div>
+      <h2 class="split" style="--d:100">Integrantes <span class="hl">brigada de emergencia</span></h2>
+    </div>
+    <div class="cards">
+      <div class="carnet a flip" style="--d:300"><img src="assets/carnet-1.png" alt="Carné de Yuri Carolina Muñoz, brigadista de emergencias"></div>
+      <div class="carnet a flip" style="--d:450"><img src="assets/carnet-2.png" alt="Carné de Juan Jose Vargas, brigadista de emergencias"></div>
+      <div class="carnet a flip" style="--d:600"><img src="assets/carnet-3.png" alt="Carné de Carlos Andres Muñoz, brigadista de emergencias"></div>
+      <div class="carnet a flip" style="--d:750"><img src="assets/carnet-4.png" alt="Carné de Karen Yulieth Muñoz, brigadista de emergencias"></div>
+      <div class="carnet a flip" style="--d:900"><img src="assets/carnet-5.png" alt="Carné de Monica Alexandra Chavarria, brigadista de emergencias"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 PENDIENTES -->
+<section class="slide" data-title="Acciones pendientes">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker a">Sistema de gestión</div>
+      <h2 class="split" style="--d:100">Acciones <span class="hl">pendientes</span></h2>
+    </div>
+    <div class="todo" id="todo"></div>
+  </div>
+</section>
+
+<!-- 18 CIERRE -->
+<section class="slide end" data-title="Gracias">
+  <div class="ring-deco"></div><div class="ring-deco r2"></div>
+  <div class="wrap">
+    <div class="logo-big a pop" style="--d:100">
+      <svg viewBox="0 0 64 40"><use href="#pfLogo"/></svg>
+      <div><div class="logo-word" style="font-size:clamp(30px,4vw,56px)">People<b>Flow</b></div><div class="logo-tag">Todo tu equipo. Un solo lugar.</div></div>
+    </div>
+    <h1 class="split" style="--d:500;margin-top:40px"><span class="hl">¡Gracias!</span></h1>
+    <p class="lead a" style="--d:1200;margin:14px auto 0">Comité Administrativo y de Gestión Humana</p>
+  </div>
+</section>
+
+</main>
+
+<!-- HUD -->
+<div class="dots" id="dots"></div>
+<div class="hud">
+  <div class="brand-s"><svg viewBox="0 0 64 40"><use href="#pfLogo"/></svg><span>People<b>Flow</b></span></div>
+  <div class="ctrl">
+    <button id="prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <span class="cnt" id="cnt">1 / 18</span>
+    <button id="next" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button id="gridBtn" aria-label="Índice"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+    <button id="fsBtn" aria-label="Pantalla completa"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  </div>
+</div>
+
+<div class="overlay" id="index"><h3>Escenas <button class="x" data-close>×</button></h3><div class="idx-grid" id="idxGrid"></div></div>
+<div class="overlay lightbox" id="lightbox"><div><img id="lbImg" alt=""><div class="cap" id="lbCap"></div><div style="text-align:center;margin-top:14px"><button class="x" data-close style="margin:0 auto">×</button></div></div></div>
+
+<script>
+(()=>{
+/* ================= datos (tal cual de las capturas) ================= */
+const ORG={name:'Wilber Enrique Contreras Martinez',role:'CEO',dept:'Administrativo · LOGIGHO SAS',av:'wilber',count:7,
+ kids:[
+  {name:'Felix Raul Tejada Porras',role:'Jefe de Marketing',dept:'Marketing · LOGIGHO SAS',av:'felix',count:7,wide:true,kids:[
+    {name:'Jhonatan Daniel Mosquera',role:'Diseñador',dept:'Marketing · LOGIGHO SAS'},
+    {name:'Julio Cesar Restrepo Hernandez',role:'Trafficker Digital',dept:'Marketing · LOGIGHO SAS',av:'julio'},
+    {name:'Maria Fernanda Espinoza Gutierrez',role:'Diseñadora',dept:'Marketing · LOGIGHO SAS'},
+    {name:'Mateo Jimenez Jimenez',role:'Trafficker Digital Junior',dept:'Marketing · LOGIGHO SAS',av:'mateo'},
+    {name:'Oscar Hernan Riascos',role:'Trafficker Digital',dept:'Marketing · LOGIGHO SAS'},
+    {name:'Santiago Vargas Rodriguez',role:'Trafficker Digital Junior',dept:'Marketing · LOGIGHO SAS',av:'santiago'},
+    {name:'Willington Canacue Fierro',role:'Diseñador',dept:'Marketing · LOGIGHO SAS'}]},
+  {name:'Iker Acevedo Vargas',role:'Desarrollo',dept:'Desarrollo · LOGIGHO SAS',color:'#9b7bff',count:2,kids:[
+    {name:'YADILTON BRANET TORRES BEDOYA',role:'Desarrollador junior',dept:'Desarrollo · EHUK',av:'yadilton'},
+    {name:'YULIAN ANDRES TREJOS ZAPATA',role:'Desarrollo',dept:'Desarrollo A · EHUK',color:'#2fd38f'}]},
+  {name:'Juan Jose Grillo Martinez',role:'Gerente E huk',dept:'Administrativo · EHUK',av:'grillo',count:6,kids:[
+    {name:'Camilo Barrios Diaz',role:'Waichat',dept:'Waichat · EHUK',color:'#2fd38f',plus:3},
+    {name:'Eduard Andres Cuesta Pinilla',role:'Jefe De Analitica De Datos',dept:'Analista data · EHUK',av:'eduard',plus:1},
+    {name:'Juan Jose Vargas Noriega',role:'TRAFFICKER',dept:'Marketing · EHUK',av:'jjvargas',plus:1},
+    {ghost:'+3 más en la plataforma'}]},
+  {ghost:'+4 jefes más en la plataforma'}
+ ]};
+
+const CONTRATOS=[
+ ['Yudith Vannesa Ortiz Lozada','Auxiliar Logístico Y De Distribución','Carlos Andres Muñoz Artunduaga','01/11/2026',4,'01/10/2026','N.º 1'],
+ ['Isabella Hincapie Herrera','Auxiliar Administrativa','Camilo Barrios Diaz','16/11/2026',19,'16/10/2026','N.º 1'],
+ ['Jhonatan Daniel Mosquera','Diseñador','Felix Raul Tejada Porras','19/11/2026',22,'19/10/2026','N.º 1'],
+ ['Oscar Hernan Riascos','Trafficker Digital','Felix Raul Tejada Porras','19/11/2026',22,'19/10/2026','N.º 2'],
+ ['Santiago Tabares Echavarria','Diseñador','Juan Jose Vargas Noriega','19/11/2026',22,'19/10/2026','N.º 1'],
+ ['Valeria Herrera Florez','Asesor Comercial','Carolina Herrera Ospina','25/11/2026',28,'25/10/2026','N.º 1'],
+ ['Julio Cesar Restrepo Hernandez','Trafficker Digital','Felix Raul Tejada Porras','01/12/2026',34,'01/11/2026','N.º 3'],
+ ['Sury Londoño Chavarria','Auxiliar Logístico Y De Distribución','Carlos Andres Muñoz Artunduaga','03/12/2026',36,'03/11/2026','N.º 1'],
+ ['Carlos Andres Muñoz Artunduaga','Jefe De Aseguramiento De Operaciones','Wilber Enrique Contreras Martinez','09/12/2026',42,'09/11/2026','N.º 3'],
+ ['Erica Yeseny Usuga Durango','Auxiliar Contable','Yuri Carolina Muñoz Cuellar','10/12/2026',43,'10/11/2026','N.º 1']];
+
+const MARCAS=[
+ {n:'Harold Peña Cuellar',c:'Analista De Datos',t:'Analista data',m:[['amber','Entrada 8:31 a. m.'],['green','Inicio alm. 12:59 p. m.'],['green','Fin alm. 2:01 p. m.']]},
+ {n:'Iker Acevedo Vargas',c:'Desarrollo',t:'Desarrollo B',m:[['amber','Entrada 9:18 a. m.'],['green','Inicio alm. 1:03 p. m.'],['green','Fin alm. 2:02 p. m.']]},
+ {n:'Isabella Hincapie Herrera',c:'Auxiliar Administrativa',t:'WAICHAT DIURNO',m:[['amber','Entrada 8:10 a. m.'],['green','Inicio alm. 1:02 p. m.'],['green','Fin alm. 2:01 p. m.']]},
+ {n:'Jhoan Felipe Fernandez Viana',c:'Auxiliar Logístico Y De Distribución',t:'Bodega A',m:[['green','Entrada 6:52 a. m.'],['green','Inicio alm. 11:59 a. m.'],['green','Fin alm. 12:13 p. m.'],['green','Fin turno 3:32 p. m.']]},
+ {n:'Jhonatan Daniel Mosquera',c:'Diseñador',t:'Marketing B',m:[['amber','Entrada 7:58 a. m.'],['green','Inicio alm. 12:15 p. m.'],['green','Fin alm. 1:08 p. m.']]}];
+
+const DOCS=['Misión de Logigho','Cámara de comercio','Registro mercantil','RUT','Certificado bancario','Cédula representante legal','Certificado de sanidad','Certificado de bomberos','Carta accionistas','Estados financieros'];
+
+const TODO=[
+ ['Estándares mínimos ante la ARL',''],
+ ['Reporte de acoso sexual ante el Ministerio','Segundo semestre (junio – diciembre)'],
+ ['Dotación','Abril – agosto – diciembre'],
+ ['Actualizar la matriz de riesgo de la empresa','Cada 6 meses'],
+ ['Actualizar matriz de requisitos legales',''],
+ ['Capacitación de primeros auxilios',''],
+ ['Evacuación',''],
+ ['Realizar inspección de seguridad',''],
+ ['Exámenes médicos','']];
+
+/* ================= utilidades ================= */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const ini=n=>n.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const fmt=(v,p='')=>p+Math.round(v).toLocaleString('es-CO');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// partir títulos en palabras animadas
+$$('.split').forEach(el=>{
+  let i=0;
+  const walk=node=>{[...node.childNodes].forEach(ch=>{
+    if(ch.nodeType===3){const frag=document.createDocumentFragment();
+      ch.textContent.split(/(\s+)/).forEach(p=>{if(!p)return;if(/^\s+$/.test(p)){frag.append(p);return}
+        const s=document.createElement('span');s.className='w';s.style.setProperty('--i',i++);s.textContent=p;frag.append(s)});
+      ch.replaceWith(frag)}else walk(ch)})};
+  walk(el);
+});
+$$('[data-d]').forEach(el=>el.style.setProperty('--d',el.dataset.d));
+
+/* ================= construir contenido ================= */
+// contratos
+const tb=$('#tblContratos tbody'), track=$('#track');
+CONTRATOS.forEach((r,i)=>{
+  const cls=r[4]<30?'red':'amber';
+  tb.insertAdjacentHTML('beforeend',`<tr style="--i:${i}"><td class="nm">${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${r[3]}</td><td><span class="pill ${cls}">En ${r[4]} días</span></td><td>${r[5]}</td><td>${r[6]}</td></tr>`);
+});
+[0,15,30,45].forEach(d=>track.insertAdjacentHTML('beforeend',`<span class="tick" style="left:${d/45*100}%">${d===0?'Hoy':d+' días'}</span>`));
+const stack={};
+CONTRATOS.forEach((r,i)=>{const d=r[4];stack[d]=(stack[d]||0)+1;
+  track.insertAdjacentHTML('beforeend',`<span class="dot ${d<30?'red':'amber'}" style="left:${d/45*100}%;bottom:${26+(stack[d]-1)*18}px;--i:${i}" data-t="${esc(r[0])} · ${d} días"></span>`)});
+
+// marcaciones
+$('#marks').innerHTML=MARCAS.map((p,r)=>`<div class="panel mrow a" style="--d:${300+r*130}"><div class="who"><b>${esc(p.n)}</b><span>${esc(p.c)}</span></div><div class="chips">${p.m.map((m,i)=>`<span class="pill ${m[0]}" style="--r:${r};--i:${i}">${esc(m[1])}</span>`).join('')}</div><div class="shift">${esc(p.t)}</div></div>`).join('');
+
+// carpeta legal
+$('#docs').innerHTML=DOCS.map((d,i)=>`<div class="doc a pop" style="--d:${450+i*70}"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>${esc(d)}</div>`).join('');
+
+// pendientes
+$('#todo').innerHTML=TODO.map((t,i)=>`<div class="panel td a" style="--d:${250+i*90}"><div class="top"><span class="idx">${String(i+1).padStart(2,'0')}</span><span class="circ"></span></div><b>${esc(t[0])}</b>${t[1]?`<span class="when">⏱ ${esc(t[1])}</span>`:''}</div>`).join('');
+
+// confeti
+const conf=$('#confetti');const cols=['#2fd38f','#45d0ff','#2f7bff','#ffd36e','#ff7a8a'];
+for(let k=0;k<26;k++){const a=Math.random()*Math.PI*2,d=60+Math.random()*90;
+  conf.insertAdjacentHTML('beforeend',`<i style="--k:${k};background:${cols[k%5]};--x:${Math.cos(a)*d}px;--y:${Math.sin(a)*d-30}px;--r:${Math.random()*720-360}deg"></i>`)}
+
+/* ================= organigrama ================= */
+const orgEl=$('#org'), linesEl=$('#orgLines');
+function nodeHTML(p,cls=''){
+  if(p.ghost) return `<div class="node ghostn ${cls}">${esc(p.ghost)}</div>`;
+  const av=p.av?`<img src="assets/av-${p.av}.png" alt="">`:ini(p.name);
+  const col=p.color||'#3b6fd8';
+  const avStyle=p.av?'':`style="background:${col}26;color:${col}"`;
+  return `<div class="node ${cls}" ${p.count?'role="button" tabindex="0"':''}><span class="av" ${avStyle}>${av}</span><span class="tx"><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div><div class="dp">${esc(p.dept)}</div></span>${p.count?`<span class="cnt">${p.count}</span>`:''}${p.plus?`<span class="plus">+${p.plus}</span>`:''}</div>`;
+}
+orgEl.insertAdjacentHTML('beforeend',`<div class="lvl0">${nodeHTML(ORG,'ceo')}</div><div class="lvl1">${ORG.kids.map(k=>
+  k.ghost?`<div class="branch ghost">${nodeHTML(k)}</div>`:
+  `<div class="branch ${k.wide?'wide':''}">${nodeHTML(k,'boss')}<div class="team ${k.kids.length>4?'cols2':''}">${k.kids.map((c,i)=>nodeHTML(c).replace('class="node','style="--i:'+i+'" class="node')).join('')}</div></div>`).join('')}</div>`);
+const branches=$$('.branch',orgEl);
+function rel(el){let x=0,y=0,e=el;while(e&&e!==orgEl){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent}return{x,y,w:el.offsetWidth,h:el.offsetHeight}}
+function drawLines(animate,teamIdx){
+  const ceo=rel($('.ceo',orgEl)); let html='';
+  const leaders=branches.map(b=>rel(b.firstElementChild));
+  const midY=ceo.y+ceo.h+(leaders[0].y-(ceo.y+ceo.h))/2;
+  const cx=ceo.x+ceo.w/2;
+  html+=`<path pathLength="1" data-k="0" d="M${cx} ${ceo.y+ceo.h+12} V${midY}"/>`;
+  leaders.forEach((l,i)=>{const lx=l.x+l.w/2;html+=`<path pathLength="1" data-k="${1+i}" d="M${cx} ${midY} H${lx} V${l.y}"/>`});
+  branches.forEach((b,i)=>{if(!b.classList.contains('open'))return;const l=leaders[i],t=rel($('.team',b));const lx=l.x+l.w/2;
+    html+=`<path pathLength="1" class="glow" data-team="${i}" d="M${lx} ${l.y+l.h+12} V${t.y}"/>`});
+  linesEl.innerHTML=html;
+  const ps=$$('path',linesEl);
+  ps.forEach(p=>{
+    const team=p.dataset.team, k=p.dataset.k;
+    const anim = animate===true ? k!==undefined : (animate==='team' && team!==undefined && +team===teamIdx);
+    if(!anim){p.style.transition='none';p.classList.add('on');return}
+    if(k!==undefined)p.style.transitionDelay=(k==0?350:650+k*80)+'ms';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>p.classList.add('on')));
+  });
+}
+function orgEnter(){
+  branches.forEach(b=>b.classList.remove('open'));
+  $$('.node',orgEl).forEach(n=>n.classList.remove('in'));
+  linesEl.innerHTML='';
+  const ceo=$('.ceo',orgEl);
+  setTimeout(()=>ceo.classList.add('in'),250);
+  setTimeout(()=>drawLines(true),300);
+  branches.forEach((b,i)=>setTimeout(()=>b.firstElementChild.classList.add('in'),900+i*170));
+}
+function toggle(b,force){
+  const open=force??!b.classList.contains('open');
+  const was=b.classList.contains('open');
+  b.classList.toggle('open',open);
+  $$('.team .node',b).forEach(n=>n.classList.add('in'));
+  drawLines('team',open&&!was?branches.indexOf(b):-1);
+}
+branches.forEach(b=>{const n=b.firstElementChild;if(!n.classList.contains('boss'))return;
+  n.addEventListener('click',()=>toggle(b));
+  n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();toggle(b)}})});
+$('#openAll').onclick=()=>branches.forEach((b,i)=>b.firstElementChild.classList.contains('boss')&&setTimeout(()=>toggle(b,true),i*180));
+$('#closeAll').onclick=()=>branches.forEach(b=>toggle(b,false));
+addEventListener('resize',()=>{if(slides[cur]&&slides[cur].id==='s-org')drawLines(false)});
+
+/* ================= escena QR ================= */
+const stage=$('#stage'), qs=$$('.qs');let qrT=[];
+function qrPlay(){
+  qrT.forEach(clearTimeout);qrT=[];
+  stage.className='stage panel a zoom';
+  qs.forEach(q=>q.classList.remove('on','done'));
+  const at=(ms,fn)=>qrT.push(setTimeout(fn,ms));
+  const step=n=>{qs.forEach((q,i)=>{q.classList.toggle('on',i===n-1);q.classList.toggle('done',i<n-1)})};
+  at(700,()=>{stage.classList.add('s1','walk');step(1)});
+  at(2850,()=>stage.classList.remove('walk'));
+  at(3000,()=>{stage.classList.add('s2');step(2)});
+  at(3600,()=>stage.classList.add('s3'));
+  at(5300,()=>{stage.classList.remove('s3');stage.classList.add('s4');step(3)});
+  at(6500,()=>stage.classList.add('s4b'));
+  at(7400,()=>stage.classList.add('s5'));
+  at(8000,()=>{stage.classList.add('s6');step(4)});
+  at(10500,()=>qs.forEach(q=>{q.classList.remove('on');q.classList.add('done')}));
+}
+function qrStop(){qrT.forEach(clearTimeout);qrT=[]}
+$('#replay').addEventListener('click',qrPlay);
+
+/* ================= contadores, anillos, barras ================= */
+function runCounters(sl){
+  $$('[data-count]',sl).forEach(el=>{
+    const to=+el.dataset.count,p=el.dataset.prefix||'',dur=to>1000?2000:1400,t0=performance.now()+300;
+    el.textContent=fmt(0,p);
+    const tick=t=>{if(!sl.classList.contains('is-active'))return;const k=Math.min(1,Math.max(0,(t-t0)/dur));const e=1-Math.pow(1-k,4);
+      el.textContent=fmt(to*e,p);if(k<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)});
+  $$('.ringw .fg',sl).forEach(c=>{const L=2*Math.PI*94;c.style.strokeDasharray=`0 ${L}`;requestAnimationFrame(()=>requestAnimationFrame(()=>c.style.strokeDasharray=`${L*c.dataset.pct/100} ${L}`))});
+  $$('.donut .seg',sl).forEach(c=>{const L=2*Math.PI*60;c.style.transition='none';c.style.strokeDasharray=`0 ${L}`;c.style.strokeDashoffset=-L*c.dataset.off;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{c.style.transition='';c.style.transitionDelay=(1300+c.dataset.off*1000)+'ms';c.style.strokeDasharray=`${L*c.dataset.frac} ${L}`}))});
+  $$('[data-w]',sl).forEach(b=>{b.style.width='0';requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.width=b.dataset.w+'%'))});
+}
+
+/* ================= motor de diapositivas ================= */
+const slides=$$('.slide'), N=slides.length;
+let cur=-1;
+const dots=$('#dots'), idx=$('#idxGrid');
+slides.forEach((s,i)=>{
+  const b=document.createElement('button');b.title=s.dataset.title;b.onclick=()=>go(i);dots.append(b);
+  idx.insertAdjacentHTML('beforeend',`<button data-go="${i}"><span>${String(i+1).padStart(2,'0')}</span><b>${esc(s.dataset.title)}</b></button>`)});
+$$('[data-go]',idx).forEach(b=>b.onclick=()=>{go(+b.dataset.go);closeOv()});
+
+function go(n){
+  n=Math.max(0,Math.min(N-1,n));if(n===cur)return;
+  const back=n<cur, old=slides[cur];
+  if(old){old.classList.remove('is-active','dir-back');old.classList.add('leaving');if(back)old.classList.add('dir-back');
+    setTimeout(()=>old.classList.remove('leaving','dir-back'),600);
+    if(old.id==='s-qr')qrStop();}
+  const s=slides[n];s.classList.toggle('dir-back',back);void s.offsetWidth;s.classList.add('is-active');s.scrollTop=0;
+  cur=n;
+  $('#progress').style.width=((n+1)/N*100)+'%';
+  $('#cnt').textContent=`${n+1} / ${N}`;
+  $$('button',dots).forEach((d,i)=>d.classList.toggle('on',i===n));
+  $$('button',idx).forEach((d,i)=>d.classList.toggle('on',i===n));
+  history.replaceState(null,'','#'+(n+1));
+  document.title=`${n+1}. ${s.dataset.title} · Comité PeopleFlow`;
+  runCounters(s);
+  if(s.id==='s-org')orgEnter();
+  if(s.id==='s-qr')qrPlay();
+  // mover orbes para dar sensación de profundidad
+  $('.orb.o1').style.transform=`translate(${(n%3)*6}vw,${(n%4)*4}vh)`;
+  $('.orb.o2').style.transform=`translate(${-(n%4)*5}vw,${-(n%3)*5}vh)`;
+}
+const next=()=>go(cur+1), prev=()=>go(cur-1);
+$('#next').onclick=next;$('#prev').onclick=prev;
+
+// pantalla completa
+function fs(){const d=document;if(!d.fullscreenElement&&!d.webkitFullscreenElement){(d.documentElement.requestFullscreen||d.documentElement.webkitRequestFullscreen)?.call(d.documentElement)}else{(d.exitFullscreen||d.webkitExitFullscreen)?.call(d)}}
+$('#fsBtn').onclick=fs;
+
+// índice y captura
+const ov=$('#index'), lb=$('#lightbox');
+function closeOv(){ov.classList.remove('show');lb.classList.remove('show')}
+$('#gridBtn').onclick=()=>ov.classList.toggle('show');
+$$('[data-close]').forEach(b=>b.onclick=closeOv);
+[ov,lb].forEach(o=>o.addEventListener('click',e=>{if(e.target===o||e.target.parentElement===lb)closeOv()}));
+$$('[data-cap]').forEach(b=>b.addEventListener('click',()=>{$('#lbImg').src=b.dataset.cap;$('#lbCap').textContent=b.dataset.capt||'';lb.classList.add('show')}));
+
+// teclado
+addEventListener('keydown',e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const open=ov.classList.contains('show')||lb.classList.contains('show');
+  if(e.key==='Escape'){closeOv();return}
+  if(open&&e.key!=='g'&&e.key!=='G')return;
+  switch(e.key){
+    case 'ArrowRight':case 'PageDown':case ' ':case 'Enter':e.preventDefault();next();break;
+    case 'ArrowLeft':case 'PageUp':case 'Backspace':e.preventDefault();prev();break;
+    case 'Home':go(0);break;case 'End':go(N-1);break;
+    case 'f':case 'F':fs();break;
+    case 'g':case 'G':ov.classList.toggle('show');break;
+  }
+});
+
+// clic: en el tercio izquierdo retrocede, en el resto avanza (si no es un botón)
+$('#deck').addEventListener('click',e=>{
+  if(e.target.closest('button,a,.node,.carnet,[role=button],.tbl-wrap,.dot'))return;
+  if(getSelection().toString())return;
+  e.clientX<innerWidth*.28?prev():next();
+});
+
+// gesto en pantallas táctiles
+let tx=0,ty=0,tt=0;
+addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;tt=Date.now()},{passive:true});
+addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.4&&Date.now()-tt<800){dx<0?next():prev()}},{passive:true});
+
+// rueda del ratón / trackpad (solo si la escena no tiene scroll propio)
+let wl=0;
+addEventListener('wheel',e=>{const s=slides[cur];if(s.scrollHeight>s.clientHeight+4)return;
+  if(Date.now()-wl<900||Math.abs(e.deltaY)<30)return;wl=Date.now();e.deltaY>0?next():prev()},{passive:true});
+
+/* ================= fondo de partículas ================= */
+const cv=$('#bg'),cx=cv.getContext('2d');let W,H,P=[];
+function rs(){W=cv.width=innerWidth*devicePixelRatio;H=cv.height=innerHeight*devicePixelRatio;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
+  const n=Math.round(Math.min(90,innerWidth*innerHeight/16000));P=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:(Math.random()*1.6+.5)*devicePixelRatio}))}
+rs();addEventListener('resize',rs);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function loop(){cx.clearRect(0,0,W,H);const D=140*devicePixelRatio;
+  for(let i=0;i<P.length;i++){const p=P[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+    cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fillStyle='rgba(110,170,255,.55)';cx.fill();
+    for(let j=i+1;j<P.length;j++){const q=P[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.hypot(dx,dy);if(d<D){cx.strokeStyle=`rgba(70,140,255,${.16*(1-d/D)})`;cx.lineWidth=devicePixelRatio;cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.stroke()}}}
+  if(!reduce)requestAnimationFrame(loop)}
+loop();
+
+addEventListener('hashchange',()=>{const k=parseInt(location.hash.slice(1));if(!isNaN(k)&&k-1!==cur)go(k-1)});
+// arranque
+const h=parseInt(location.hash.slice(1));
+go(isNaN(h)?0:h-1);
+})();
+</script>
+</body>
+</html>
