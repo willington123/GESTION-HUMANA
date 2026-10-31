@@ -147,6 +147,24 @@ h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6
 .branch.open .team .node{animation:cardIn .6s var(--spring) both;animation-delay:calc(var(--i) * 85ms + 120ms)}
 @keyframes cardIn{from{opacity:0;transform:translateY(-18px) scale(.9)}to{opacity:1;transform:none}}
 .org-hint{color:var(--muted);font-size:14px;margin-top:6px}
+/* organigrama completo: 7 jefes */
+#s-org .wrap{max-width:1720px}
+.orgscroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;margin:0 -8px;padding:0 8px 6px}
+.org{min-width:1180px}
+.lvl0{margin-bottom:40px}
+.lvl1{gap:10px}
+.lvl1 .branch{flex:1 1 0}
+.lvl1>.branch>.node{padding:10px 10px;gap:8px;max-width:none}
+.lvl1>.branch>.node .av{width:34px;height:34px;font-size:12px}
+.lvl1>.branch>.node .nm{font-size:12.5px}
+.lvl1>.branch>.node .rl{font-size:11.5px;line-height:1.25}
+.lvl1>.branch>.node .dp{font-size:10.5px}
+.team{margin-top:24px;padding:8px;gap:8px;grid-template-columns:minmax(0,1fr)}
+.team .node{padding:8px 9px;gap:8px}
+.team .node .av{width:28px;height:28px;font-size:10.5px}
+.team .node .nm{font-size:11.5px}.team .node .rl{font-size:10.5px;line-height:1.25}.team .node .dp{font-size:10px}
+.node .me{display:inline-block;padding:0 6px;border-radius:6px;background:rgba(47,123,255,.22);color:#8fb8ff;font-size:10px;font-weight:700;vertical-align:1px}
+.node.me-n{border-color:#3d76e6;box-shadow:0 0 0 1px rgba(61,118,230,.45),0 0 22px -6px rgba(47,123,255,.7)}
 
 /* ---------- 3 · personas ---------- */
 .fake-btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
@@ -460,6 +478,8 @@ h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6
   .node{max-width:none}
   .lvl0{margin-bottom:26px}
   .org-lines{display:none}
+  .org{min-width:0}.orgscroll{overflow:visible;margin:0;padding:0}.lvl1 .branch{flex:none}
+  .lvl1>.branch>.node .nm{font-size:14px}.lvl1>.branch>.node .rl{font-size:13px}
   .team.cols2{grid-template-columns:1fr}
   .tasks,.areas,.docs{grid-template-columns:1fr}
   .todo{grid-template-columns:1fr 1fr}
@@ -551,7 +571,7 @@ h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6
         <button class="cap-btn" data-cap="assets/cap-organigrama.jpg" data-capt="Captura original: Estructura en PeopleFlow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
       </div>
     </div>
-    <div class="org" id="org"><svg class="org-lines" id="orgLines"></svg></div>
+    <div class="orgscroll"><div class="org" id="org"><svg class="org-lines" id="orgLines"></svg></div></div>
   </div>
 </section>
 
@@ -937,11 +957,11 @@ h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6
     </div>
     <div class="rings">
       <div class="panel ringc a pop" style="--d:300">
-        <div class="ringw"><svg viewBox="0 0 220 220"><defs><linearGradient id="rg1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2f7bff"/><stop offset="1" stop-color="#45d0ff"/></linearGradient></defs><circle class="bgc" cx="110" cy="110" r="94"/><circle class="fg" cx="110" cy="110" r="94" stroke="url(#rg1)" data-pct="63"/></svg><div class="val"><span><span data-count="63">0</span><small>%</small></span></div></div>
+        <div class="ringw"><svg viewBox="0 0 220 220"><defs><linearGradient id="rg1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2f7bff"/><stop offset="1" stop-color="#45d0ff"/></linearGradient></defs><circle class="bgc" cx="110" cy="110" r="94"/><circle class="fg" cx="110" cy="110" r="94" stroke="url(#rg1)" data-pct="80"/></svg><div class="val"><span><span data-count="80">0</span><small>%</small></span></div></div>
         <h3>Sistema de gestión – 2026</h3><p>% de avance</p>
       </div>
       <div class="panel ringc a pop" style="--d:500">
-        <div class="ringw"><svg viewBox="0 0 220 220"><defs><linearGradient id="rg2" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2fd38f"/><stop offset="1" stop-color="#b6f36a"/></linearGradient></defs><circle class="bgc" cx="110" cy="110" r="94"/><circle class="fg" cx="110" cy="110" r="94" stroke="url(#rg2)" data-pct="80"/></svg><div class="val"><span><span data-count="80">0</span><small>%</small></span></div></div>
+        <div class="ringw"><svg viewBox="0 0 220 220"><defs><linearGradient id="rg2" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2fd38f"/><stop offset="1" stop-color="#b6f36a"/></linearGradient></defs><circle class="bgc" cx="110" cy="110" r="94"/><circle class="fg" cx="110" cy="110" r="94" stroke="url(#rg2)" data-pct="63"/></svg><div class="val"><span><span data-count="63">0</span><small>%</small></span></div></div>
         <h3>Capacitaciones – 2026</h3><p>% de cumplimiento</p>
       </div>
     </div>
@@ -1035,24 +1055,46 @@ h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6
 /* ================= datos (tal cual de las capturas) ================= */
 const ORG={name:'Wilber Enrique Contreras Martinez',role:'CEO',dept:'Administrativo · LOGIGHO SAS',av:'wilber',count:7,
  kids:[
-  {name:'Felix Raul Tejada Porras',role:'Jefe de Marketing',dept:'Marketing · LOGIGHO SAS',av:'felix',count:7,wide:true,kids:[
-    {name:'Jhonatan Daniel Mosquera',role:'Diseñador',dept:'Marketing · LOGIGHO SAS'},
+  {name:'Carlos Andres Muñoz Artunduaga',role:'Jefe De Aseguramiento De Operaciones',dept:'Administrativo · LOGIGHO SAS',color:'#9b7bff',count:9,kids:[
+    {name:'Cindy Julieth Dias Restrepo',role:'Auxiliar Logístico Y De Distribución',dept:'Auxiliar Logístico Y De Distribución'},
+    {name:'Diana Arevalo Vega',role:'Auxiliar Logístico Y De Distribución',dept:'Auxiliar Logístico Y De Distribución'},
+    {name:'Doralba Ortiz Mazo',role:'Auxiliar Logístico Y De Distribución',dept:'Auxiliar Logístico Y De Distribución',av:'doralba'},
+    {name:'Guillermo Leiva Cuellar',role:'Auxiliar Logístico Y De Distribución',dept:'Auxiliar Logístico Y De Distribución'},
+    {name:'Jhoan Felipe Fernandez Viana',role:'Auxiliar Logístico Y De Distribución',dept:'Auxiliar Logístico Y De Distribución'},
+    {name:'Jhon Mario Londoño Gañan',role:'Auxiliar Logístico Y De Distribución',dept:'Auxiliar Logístico Y De Distribución'},
+    {name:'Shelsyn Paulina Beleño Palmera',role:'Auxiliar Logístico Y De Distribución',dept:'Administrativo · EHUK'},
+    {name:'Sury Londoño Chavarria',role:'Auxiliar Logístico Y De Distribución',dept:'Bodega A · LOGIGHO SAS',av:'sury'},
+    {name:'Yudith Vannesa Ortiz Lozada',role:'Auxiliar Logístico Y De Distribución',dept:'Bodega A · LOGIGHO SAS',av:'yudith'}]},
+  {name:'Carolina Herrera Ospina',role:'DIRECTORA DE OPERACIONES',dept:'Administrativo · LOGIGHO SAS',av:'carolina',count:3,kids:[
+    {name:'Elizabet Gutierrez Salazar',role:'Asesor Comercial',dept:'Comercial B · LOGIGHO SAS'},
+    {name:'MARIA JOSE LORA MARIN',role:'ASESORA COMERCIAL',dept:'Comercial C · LOGIGHO SAS'},
+    {name:'Valeria Herrera Florez',role:'Asesor Comercial',dept:'Comercial A · LOGIGHO SAS'}]},
+  {name:'Felix Raul Tejada Porras',role:'Jefe de Marketing',dept:'Marketing · LOGIGHO SAS',av:'felix',count:7,kids:[
+    {name:'Jhonatan Daniel Mosquera',role:'Diseñador',dept:'Marketing · LOGIGHO SAS',av:'jhonatan'},
     {name:'Julio Cesar Restrepo Hernandez',role:'Trafficker Digital',dept:'Marketing · LOGIGHO SAS',av:'julio'},
-    {name:'Maria Fernanda Espinoza Gutierrez',role:'Diseñadora',dept:'Marketing · LOGIGHO SAS'},
+    {name:'Maria Fernanda Espinoza Gutierrez',role:'Diseñadora',dept:'Marketing · LOGIGHO SAS',av:'mariafer'},
     {name:'Mateo Jimenez Jimenez',role:'Trafficker Digital Junior',dept:'Marketing · LOGIGHO SAS',av:'mateo'},
     {name:'Oscar Hernan Riascos',role:'Trafficker Digital',dept:'Marketing · LOGIGHO SAS'},
     {name:'Santiago Vargas Rodriguez',role:'Trafficker Digital Junior',dept:'Marketing · LOGIGHO SAS',av:'santiago'},
-    {name:'Willington Canacue Fierro',role:'Diseñador',dept:'Marketing · LOGIGHO SAS'}]},
+    {name:'Willington Canacue Fierro',role:'Diseñador',dept:'Marketing · LOGIGHO SAS',av:'willington'}]},
   {name:'Iker Acevedo Vargas',role:'Desarrollo',dept:'Desarrollo · LOGIGHO SAS',color:'#9b7bff',count:2,kids:[
     {name:'YADILTON BRANET TORRES BEDOYA',role:'Desarrollador junior',dept:'Desarrollo · EHUK',av:'yadilton'},
-    {name:'YULIAN ANDRES TREJOS ZAPATA',role:'Desarrollo',dept:'Desarrollo A · EHUK',color:'#2fd38f'}]},
+    {name:'YULIAN ANDRES TREJOS ZAPATA',role:'Desarrollo',dept:'Desarrollo A · EHUK'}]},
   {name:'Juan Jose Grillo Martinez',role:'Gerente E huk',dept:'Administrativo · EHUK',av:'grillo',count:6,kids:[
-    {name:'Camilo Barrios Diaz',role:'Waichat',dept:'Waichat · EHUK',color:'#2fd38f',plus:3},
+    {name:'Camilo Barrios Diaz',role:'Waichat',dept:'Waichat · EHUK',plus:3},
     {name:'Eduard Andres Cuesta Pinilla',role:'Jefe De Analitica De Datos',dept:'Analista data · EHUK',av:'eduard',plus:1},
-    {name:'Juan Jose Vargas Noriega',role:'TRAFFICKER',dept:'Marketing · EHUK',av:'jjvargas',plus:1},
-    {ghost:'+3 más en la plataforma'}]},
-  {ghost:'+4 jefes más en la plataforma'}
+    {name:'Juan Jose Vargas Noriega',role:'TRAFFICKER DIGITAL',dept:'Marketing · LOGIGHO SAS',av:'jjvargas',plus:1},
+    {name:'CARLOS FELIPE ALVAREZ MAZABEL',role:'ASESOR DE VENTAS',dept:'Administrativo · EHUK'},
+    {name:'Deicy Tatiana',role:'Marketing',dept:'Marketing · LOGIGHO SAS'},
+    {name:'Valentina Rojas Arboleda',role:'Comercial',dept:'Comercial · EHUK',av:'valentina'}]},
+  {name:'MILADYS SANCHEZ',role:'SST',dept:'Administrativo · LOGIGHO SAS',color:'#9b7bff'},
+  {name:'Yuri Carolina Muñoz Cuellar',role:'Contador Publico De Logigho',dept:'Contable · LOGIGHO SAS',av:'yuri',count:3,kids:[
+    {name:'Erica Yeseny Usuga Durango',role:'Auxiliar Contable',dept:'Administrativo · LOGIGHO SAS',av:'erica'},
+    {name:'Monica Alexandra Chavarria',role:'Auxiliar Contable',dept:'Administrativo · LOGIGHO SAS',av:'monica',me:true},
+    {name:'Nora Emilse Ramirez Montoya',role:'Asistente De Servicios Varios',dept:'Administrativo · LOGIGHO SAS'}]}
  ]};
+// los equipos sin foto usan iniciales en verde, como en PeopleFlow
+ORG.kids.forEach(b=>(b.kids||[]).forEach(c=>{if(!c.av&&!c.color)c.color='#2fd38f'}));
 
 const CONTRATOS=[
  ['Yudith Vannesa Ortiz Lozada','Auxiliar Logístico Y De Distribución','Carlos Andres Muñoz Artunduaga','01/11/2026',4,'01/10/2026','N.º 1'],
@@ -1135,13 +1177,14 @@ const orgEl=$('#org'), linesEl=$('#orgLines');
 function nodeHTML(p,cls=''){
   if(p.ghost) return `<div class="node ghostn ${cls}">${esc(p.ghost)}</div>`;
   const av=p.av?`<img src="assets/av-${p.av}.png" alt="">`:ini(p.name);
-  const col=p.color||'#3b6fd8';
+  const col=p.color||'#3b6fd8'; if(p.me)cls+=' me-n';
   const avStyle=p.av?'':`style="background:${col}26;color:${col}"`;
-  return `<div class="node ${cls}" ${p.count?'role="button" tabindex="0"':''}><span class="av" ${avStyle}>${av}</span><span class="tx"><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div><div class="dp">${esc(p.dept)}</div></span>${p.count?`<span class="cnt">${p.count}</span>`:''}${p.plus?`<span class="plus">+${p.plus}</span>`:''}</div>`;
+  return `<div class="node ${cls}" ${p.count?'role="button" tabindex="0"':''}><span class="av" ${avStyle}>${av}</span><span class="tx"><div class="nm">${esc(p.name)}${p.me?' <span class="me">Tú</span>':''}</div><div class="rl">${esc(p.role)}</div><div class="dp">${esc(p.dept)}</div></span>${p.count?`<span class="cnt">${p.count}</span>`:''}${p.plus?`<span class="plus">+${p.plus}</span>`:''}</div>`;
 }
 orgEl.insertAdjacentHTML('beforeend',`<div class="lvl0">${nodeHTML(ORG,'ceo')}</div><div class="lvl1">${ORG.kids.map(k=>
   k.ghost?`<div class="branch ghost">${nodeHTML(k)}</div>`:
-  `<div class="branch ${k.wide?'wide':''}">${nodeHTML(k,'boss')}<div class="team ${k.kids.length>4?'cols2':''}">${k.kids.map((c,i)=>nodeHTML(c).replace('class="node','style="--i:'+i+'" class="node')).join('')}</div></div>`).join('')}</div>`);
+  !k.kids?`<div class="branch">${nodeHTML(k)}</div>`:
+  `<div class="branch">${nodeHTML(k,'boss')}<div class="team">${k.kids.map((c,i)=>nodeHTML(c).replace('class="node','style="--i:'+i+'" class="node')).join('')}</div></div>`).join('')}</div>`);
 const branches=$$('.branch',orgEl);
 function rel(el){let x=0,y=0,e=el;while(e&&e!==orgEl){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent}return{x,y,w:el.offsetWidth,h:el.offsetHeight}}
 function drawLines(animate,teamIdx){
