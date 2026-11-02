@@ -373,6 +373,19 @@ h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6
 .co .nm{font-size:clamp(16px,1.5vw,22px);font-weight:700;letter-spacing:.08em;color:var(--muted)}
 .co .n{font-size:clamp(70px,9vw,150px);font-weight:800;letter-spacing:-.05em;line-height:1;margin:10px 0}
 .co .t{color:var(--muted)}
+.co .n{font-size:clamp(56px,6vw,104px);margin:6px 0 0}
+.co-split{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:18px;font-size:14px;color:var(--muted)}
+.co-split span{display:inline-flex;align-items:center;gap:7px}.co-split i{width:9px;height:9px;border-radius:50%}
+.co-split b{color:#fff;font-size:16px}
+.co-bar{height:8px;border-radius:8px;background:rgba(255,255,255,.06);overflow:hidden;display:flex;margin:10px 0 18px}
+.co-bar i{width:0;height:100%;transition:width 1.4s var(--ease) .9s}
+.co-dl{display:grid;gap:8px;text-align:left}
+.co-dl>div{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:rgba(47,123,255,.08)}
+.co-dl span{font-size:14px;color:#c4d3f2;display:flex;flex-direction:column}
+.co-dl small{font-size:11.5px;color:var(--dim);margin-top:2px}
+.co-dl b{font-size:clamp(17px,1.5vw,22px);font-weight:800;white-space:nowrap}
+.co-dl .acc b{color:#ffb36b}
+.co .cap-btn{margin-top:16px}
 .co.e .n{background:linear-gradient(180deg,#7fd6ff,#2aa3e6);-webkit-background-clip:text;background-clip:text;color:transparent}
 .co.l .n{background:linear-gradient(180deg,#ffb36b,#ff5b4a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .vs{font-weight:800;font-size:22px;color:var(--dim)}
@@ -937,9 +950,29 @@ h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6
       <h2 class="split" style="--d:100">Activos por <span class="hl">empresa</span></h2>
     </div>
     <div class="company">
-      <div class="panel co e a left" style="--d:300"><div class="nm">ACTIVOS DE EHUK</div><div class="n" data-count="43">0</div><div class="t">total</div></div>
+      <div class="panel co e a left" style="--d:300">
+        <div class="nm">ACTIVOS DE EHUK</div><div class="n" data-count="43">0</div><div class="t">activos</div>
+        <div class="co-split"><span><i style="background:#f6a623"></i>Entregados <b data-count="42">0</b></span><span><i style="background:#ff5bb0"></i>Disponibles <b data-count="1">0</b></span></div>
+        <div class="co-bar"><i style="background:linear-gradient(90deg,#f6a623,#ffcf5c)" data-w="97.67"></i><i style="background:#ff5bb0" data-w="2.33"></i></div>
+        <div class="co-dl">
+          <div><span>Valor del inventario<small>Valor de compra, sin depreciación</small></span><b data-count="34047304" data-prefix="$">$0</b></div>
+          <div><span>Valor con depreciación<small>Depreciación del 10% anual</small></span><b data-count="33619062" data-prefix="$">$0</b></div>
+          <div class="acc"><span>Depreciación acumulada</span><b data-count="428242" data-prefix="$">$0</b></div>
+        </div>
+        <button class="cap-btn" data-cap="assets/cap-activos-ehuk.jpg" data-capt="Captura original: Activos de EHUK"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
+      </div>
       <div class="vs a pop" style="--d:600">+</div>
-      <div class="panel co l a right" style="--d:450"><div class="nm">ACTIVOS DE LOGIGHO</div><div class="n" data-count="72">0</div><div class="t">total</div></div>
+      <div class="panel co l a right" style="--d:450">
+        <div class="nm">ACTIVOS DE LOGIGHO</div><div class="n" data-count="72">0</div><div class="t">activos</div>
+        <div class="co-split"><span><i style="background:#f6a623"></i>Entregados <b data-count="72">0</b></span><span><i style="background:#ff5bb0"></i>Disponibles <b data-count="0">0</b></span></div>
+        <div class="co-bar"><i style="background:linear-gradient(90deg,#f6a623,#ffcf5c)" data-w="100.0"></i><i style="background:#ff5bb0" data-w="0.0"></i></div>
+        <div class="co-dl">
+          <div><span>Valor del inventario<small>Valor de compra, sin depreciación</small></span><b data-count="62000406" data-prefix="$">$0</b></div>
+          <div><span>Valor con depreciación<small>Depreciación del 10% anual</small></span><b data-count="61182113" data-prefix="$">$0</b></div>
+          <div class="acc"><span>Depreciación acumulada</span><b data-count="818293" data-prefix="$">$0</b></div>
+        </div>
+        <button class="cap-btn" data-cap="assets/cap-activos-logigho.jpg" data-capt="Captura original: Activos de LOGIGHO SAS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
+      </div>
     </div>
     <div class="sumbar a" style="--d:800">
       <div class="bar"><i style="background:linear-gradient(90deg,#2aa3e6,#7fd6ff)" data-w="37.39"></i><i style="background:linear-gradient(90deg,#ff5b4a,#ffb36b)" data-w="62.61"></i></div>
