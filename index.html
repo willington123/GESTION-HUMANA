@@ -201,7 +201,8 @@ h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6
 .dot{position:absolute;width:16px;height:16px;border-radius:50%;translate:-50% 0;border:2px solid #0b1833;opacity:0;transform:translateY(-30px)}
 .is-active .dot{animation:dotDrop .7s var(--spring) both;animation-delay:calc(var(--i) * 90ms + 700ms)}
 @keyframes dotDrop{to{opacity:1;transform:none}}
-.dot.red{background:#ff5b6e;box-shadow:0 0 12px #ff5b6e}.dot.amber{background:#f6a623;box-shadow:0 0 12px #f6a623}
+.dot.red{background:#ff5b6e;box-shadow:0 0 12px #ff5b6e}.dot.gone{background:#64789f}
+.tbl tr.vencido td{opacity:.6}.tbl tr.vencido td:nth-child(5){opacity:1}.dot.amber{background:#f6a623;box-shadow:0 0 12px #f6a623}
 .dot:hover::after{content:attr(data-t);position:absolute;bottom:22px;left:50%;translate:-50% 0;white-space:nowrap;background:#0b1833;border:1px solid var(--line2);padding:4px 8px;border-radius:8px;font-size:12px}
 .tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(12px,.98vw,14.5px)}
 .tbl-wrap{overflow:auto;border-radius:16px}
@@ -644,7 +645,7 @@ h2 .hl,h1 .hl,.hl .w{background:linear-gradient(100deg,#5ea0ff,#45d0ff 60%,#9fe6
       <button class="cap-btn a" style="--d:400" data-cap="assets/cap-contratos.png" data-capt="Captura original: Contratos próximos para vencer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Ver captura</button>
     </div>
     <div class="panel runway a" style="--d:300">
-      <div class="runway-top"><span>Días que faltan para el vencimiento</span><span><span class="pill red">menos de 30 días</span> <span class="pill amber">30 días o más</span></span></div>
+      <div class="runway-top"><span>Días que faltan para el vencimiento · <b id="hoyCont" style="color:#c4d3f2;font-weight:600"></b></span><span><span class="pill gray" id="legVenc" hidden>vencido</span> <span class="pill red">menos de 30 días</span> <span class="pill amber">30 días o más</span></span></div>
       <div class="track" id="track"><div class="axis"></div></div>
     </div>
     <div class="panel tbl-wrap a" style="--d:500">
@@ -1182,14 +1183,23 @@ $$('[data-d]').forEach(el=>el.style.setProperty('--d',el.dataset.d));
 /* ================= construir contenido ================= */
 // contratos
 const tb=$('#tblContratos tbody'), track=$('#track');
-CONTRATOS.forEach((r,i)=>{
-  const cls=r[4]<30?'red':'amber';
-  tb.insertAdjacentHTML('beforeend',`<tr style="--i:${i}"><td class="nm">${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${r[3]}</td><td><span class="pill ${cls}">En ${r[4]} días</span></td><td>${r[5]}</td><td>${r[6]}</td></tr>`);
+// los días que faltan se calculan con la fecha de hoy (se actualizan solos)
+const hoy=new Date();hoy.setHours(0,0,0,0);
+const fecha=t=>{const[d,m,y]=t.split('/').map(Number);return new Date(y,m-1,d)};
+const dd=n=>String(n).padStart(2,'0');
+$('#hoyCont').textContent=`Calculado al ${dd(hoy.getDate())}/${dd(hoy.getMonth()+1)}/${hoy.getFullYear()}`;
+const dias=CONTRATOS.map(r=>Math.round((fecha(r[3])-hoy)/864e5));
+const estado=d=>d<0?['gray',`Venció hace ${-d} ${-d===1?'día':'días'}`]:d===0?['red','Vence hoy']:[d<30?'red':'amber',`En ${d} ${d===1?'día':'días'}`];
+CONTRATOS.forEach((r,i)=>{const[cls,txt]=estado(dias[i]);
+  tb.insertAdjacentHTML('beforeend',`<tr style="--i:${i}" class="${dias[i]<0?'vencido':''}"><td class="nm">${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${r[3]}</td><td><span class="pill ${cls}">${txt}</span></td><td>${r[5]}</td><td>${r[6]}</td></tr>`);
 });
-[0,15,30,45].forEach(d=>track.insertAdjacentHTML('beforeend',`<span class="tick" style="left:${d/45*100}%">${d===0?'Hoy':d+' días'}</span>`));
+const maxD=Math.max(45,Math.ceil(Math.max(...dias)/15)*15);
+for(let d=0;d<=maxD;d+=15)track.insertAdjacentHTML('beforeend',`<span class="tick" style="left:${d/maxD*100}%">${d===0?'Hoy':d+' días'}</span>`);
+if(dias.some(d=>d<0))$('#legVenc').hidden=false;
 const stack={};
-CONTRATOS.forEach((r,i)=>{const d=r[4];stack[d]=(stack[d]||0)+1;
-  track.insertAdjacentHTML('beforeend',`<span class="dot ${d<30?'red':'amber'}" style="left:${d/45*100}%;bottom:${26+(stack[d]-1)*18}px;--i:${i}" data-t="${esc(r[0])} · ${d} días"></span>`)});
+CONTRATOS.forEach((r,i)=>{const d=dias[i],k=Math.max(d,0);stack[k]=(stack[k]||0)+1;
+  const cls=d<0?'gone':d<30?'red':'amber';
+  track.insertAdjacentHTML('beforeend',`<span class="dot ${cls}" style="left:${k/maxD*100}%;bottom:${26+(stack[k]-1)*18}px;--i:${i}" data-t="${esc(r[0])} · ${estado(d)[1].toLowerCase()}"></span>`)});
 
 // marcaciones
 $('#marks').innerHTML=MARCAS.map((p,r)=>`<div class="panel mrow a" style="--d:${300+r*130}"><div class="who"><b>${esc(p.n)}</b><span>${esc(p.c)}</span></div><div class="chips">${p.m.map((m,i)=>`<span class="pill ${m[0]}" style="--r:${r};--i:${i}">${esc(m[1])}</span>`).join('')}</div><div class="shift">${esc(p.t)}</div></div>`).join('');
